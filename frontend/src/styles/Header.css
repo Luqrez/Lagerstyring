@@ -18,11 +18,19 @@ h1 {
     opacity: 50%;
 }
 
-a {
+.header a {
     color: white;
-    background-color: #3F72AF;
     text-decoration: none;
     margin-left: 10px;
     padding: 10px;
     border-radius: 5px;
 }
+
+.header a:hover {
+    background-color: #17395f;
+}
+
+.header a.active {
+    background-color: #22528a;
+}
+

@@ -19,12 +19,14 @@ body {
   place-items: center;
   min-width: 320px;
   grid-template-rows: 1fr;
-  background-color: #555;
+  background-color: #EDEDED;
   font-family: 'Inter', sans-serif;
-  color: #f9f9f9;
+  color: black;
 }
 
-.app-container {
+.app {
   width: 100%;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }

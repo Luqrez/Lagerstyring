@@ -3,5 +3,5 @@ table {
     grid-template-columns: repeat(auto-fit, 1fr);
     grid-template-rows: repeat(auto-fit, 1fr);
     gap: 10px;
-    border: 1px solid #ddd;
+    border: 1px solid black;
 }
