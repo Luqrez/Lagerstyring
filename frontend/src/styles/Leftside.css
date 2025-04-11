@@ -1,0 +1,28 @@
+.stock-leftside a {
+    margin: 5px 0;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #4a4a4a;
+    opacity: 0.8;
+    border-radius: 6px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.stock-leftside {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+}
+
+.stock-leftside a:hover {
+    background-color: #e0e4e7;
+    color: #112D4E;
+    opacity: 1;
+}
+
+.stock-leftside a.active {
+    background-color: #cdd8e4;
+    color: #112D4E;
+    font-weight: bold;
+    opacity: 1;
+}

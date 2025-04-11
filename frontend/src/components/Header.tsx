@@ -13,9 +13,9 @@ function Header() {
                     <i className="fa-solid fa-chart-line" style={{ marginRight: '8px' }}></i>
                     Dashboard
                 </NavLink>
-                <NavLink to="/stock">
+                <NavLink to="/stock/varer">
                     <i className="fa-solid fa-boxes-stacked" style={{ marginRight: '8px' }}></i>
-                    Stock
+                    Lager
                 </NavLink>
                 <NavLink to="/orders">
                     <i className="fa-solid fa-truck-fast" style={{ marginRight: '8px' }}></i>

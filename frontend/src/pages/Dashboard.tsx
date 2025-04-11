@@ -1,12 +1,8 @@
-import '../styles/Dashboard.css';
 
 function Dashboard() {
     return (
-        <div className='dashboard-main'>
-            <div className='dashboard-leftside'>
-
-            </div>
-
+        <div>
+            <h1>Dashboard Page!</h1>
         </div>
     );
 

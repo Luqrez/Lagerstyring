@@ -1,9 +1,10 @@
+import '../styles/Stock.css';
 
 
 function Orders() {
     return (
         <div>
-            <h2>Orders Page!</h2>
+            <h2>Ordrer Page!</h2>
         </div>
     );
 }
