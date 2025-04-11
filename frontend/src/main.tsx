@@ -4,7 +4,7 @@ import './styles/index.css'
 import App from './App.tsx'
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode> // To highlight potential problems during development good for debugging
+  <StrictMode>
     <App />
   </StrictMode>,
 )
