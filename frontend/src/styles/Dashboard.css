@@ -1,0 +1,9 @@
+.dashboard-main {
+    display: flex;
+    flex: 1;
+}
+
+.dashboard-leftside {
+    width: 350px;
+    background-color: black;
+}

@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
 import supabase from "../utils/supabase";
+import { Routes, Route } from 'react-router-dom';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import Header from './components/Header';
+import './styles/App.css';
 
 // Interface der afspejler strukturen i beholdning-tabellen
 interface Beholdning {
@@ -46,40 +51,13 @@ function App() {
     if (error) return <div>Fejl: {error}</div>;
 
     return (
-        <div className="container">
-            <h1>Lagerbeholdning</h1>
-
-            <table className="beholdning-tabel">
-                <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Navn</th>
-                    <th>Beskrivelse</th>
-                    <th>Mængde</th>
-                    <th>Enhed</th>
-                    <th>Kategori</th>
-                    <th>Lokation</th>
-                    <th>Oprettet</th>
-                </tr>
-                </thead>
-                <tbody>
-                {beholdning.map((vare) => (
-                    <tr key={vare.id}>
-                        <td>{vare.id}</td>
-                        <td>{vare.navn}</td>
-                        <td>{vare.beskrivelse}</td>
-                        <td>{vare.mængde}</td>
-                        <td>{vare.enhed}</td>
-                        <td>{vare.kategori}</td>
-                        <td>{vare.lokation}</td>
-                        <td>{new Date(vare.oprettet).toLocaleDateString('da-DK')}</td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
-
-            {beholdning.length === 0 && <p>Ingen varer fundet i beholdningen.</p>}
-        </div>
+      <div className="app">
+        <Header/>
+        <Routes>
+          <Route path="/" element={<Dashboard/>} />
+          <Route path="/login" element={<Login/>} />
+        </Routes>
+      </div>
     );
 }
 
