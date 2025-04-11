@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import supabase from "../../utils/supabase";
+import '../styles/Database.css';
 
 // Interface der afspejler strukturen i beholdning-tabellen
 interface Beholdning {

@@ -4,6 +4,7 @@
     display: flex;
     align-items: center;
     height: 60px;
+    width: 100%;
 }
 
 h1 { 
