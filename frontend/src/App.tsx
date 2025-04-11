@@ -1,35 +1,86 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './styles/App.css'
+import { useEffect, useState } from "react";
+import supabase from "../utils/supabase";
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+// Interface der afspejler strukturen i beholdning-tabellen
+interface Beholdning {
+    id: number;
+    oprettet: string;
+    navn: string;
+    beskrivelse: string;
+    mængde: number;
+    kategori: string;
+    lokation: string;
+    enhed: string;
 }
 
-export default App
+function App() {
+    // Angiv typen eksplicit
+    const [beholdning, setBeholdning] = useState<Beholdning[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        getBeholdning();
+    }, []);
+
+    async function getBeholdning() {
+        try {
+            setLoading(true);
+            const { data, error } = await supabase.from("beholdning").select();
+
+            if (error) {
+                throw error;
+            }
+
+            // Tilføj null check for at undgå at sætte null i state
+            setBeholdning(data || []);
+        } catch (err) {
+            console.error("Fejl ved hentning af beholdning:", err);
+            setError("Der opstod en fejl ved hentning af data");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    if (loading) return <div>Indlæser...</div>;
+    if (error) return <div>Fejl: {error}</div>;
+
+    return (
+        <div className="container">
+            <h1>Lagerbeholdning</h1>
+
+            <table className="beholdning-tabel">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Navn</th>
+                    <th>Beskrivelse</th>
+                    <th>Mængde</th>
+                    <th>Enhed</th>
+                    <th>Kategori</th>
+                    <th>Lokation</th>
+                    <th>Oprettet</th>
+                </tr>
+                </thead>
+                <tbody>
+                {beholdning.map((vare) => (
+                    <tr key={vare.id}>
+                        <td>{vare.id}</td>
+                        <td>{vare.navn}</td>
+                        <td>{vare.beskrivelse}</td>
+                        <td>{vare.mængde}</td>
+                        <td>{vare.enhed}</td>
+                        <td>{vare.kategori}</td>
+                        <td>{vare.lokation}</td>
+                        <td>{new Date(vare.oprettet).toLocaleDateString('da-DK')}</td>
+                    </tr>
+                ))}
+                </tbody>
+            </table>
+
+            {beholdning.length === 0 && <p>Ingen varer fundet i beholdningen.</p>}
+        </div>
+    );
+}
+
+export default App;
