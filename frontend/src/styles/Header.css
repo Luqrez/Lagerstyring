@@ -34,3 +34,13 @@ h1 {
     background-color: #22528a;
 }
 
+
+.header a.no-active.active {
+    background-color: transparent;
+}
+
+.header a.no-active:hover {
+    background-color: transparent;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+    color: #ffffff;
+}
