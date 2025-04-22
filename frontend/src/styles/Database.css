@@ -1,4 +1,20 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+}
+
+#root {
+    overflow: hidden; /* no scroll bar */
+    /* change test*/
+}
+
 .container {
+    height: 100vh;
+    padding: 50px 20px 75px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
     width: 100%;
 }
 
@@ -46,4 +62,17 @@ th.sort-asc::after {
 
 th.sort-desc::after {
     content: '▼';
+}
+
+.table-scroll-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    background: #F9F7F7;
+    border-radius: 6px;
+    margin-bottom: 75px;
+}
+
+.beholdning-tabel {
+    width: 100%;
+    border-collapse: collapse;
 }
