@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Button } from "../components/Button";
 import supabase from "../../utils/supabase";
 import "../styles/Database.css";
 
@@ -91,7 +92,16 @@ function Database() {
 
     return (
         <div className="container">
-            <h1>Lagerbeholdning</h1>
+            <div className="table-header">
+                <h1>Lagerbeholdning</h1>
+                <div>
+                    <Button label="6969" variant="secondary"/>
+                    <Button label="Slet" variant="delete" />
+
+                    <Button label="+ Opret ny" variant="primary"/>
+                </div>
+            </div>
+
 
             <div className="table-scroll-wrapper">
                 <table className="beholdning-tabel">

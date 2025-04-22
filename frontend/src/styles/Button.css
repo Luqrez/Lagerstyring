@@ -1,0 +1,41 @@
+.button {
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+    padding: 8px 24px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+    margin-left: 10px;
+}
+
+.button.primary {
+    background-color: #4281cf;
+    color: white;
+}
+
+.button.primary:hover {
+    background-color: #2a74cf;
+}
+
+.button.secondary {
+    background-color: #f3f4f6;
+    color: #111827;
+    border: 1px solid rgba(17, 24, 39, 0.1);
+}
+
+.button.delete {
+    background-color: rgb(255, 71, 71);
+    color: white;
+}
+
+.button.secondary:hover {
+    background-color: #e5e7eb;
+}
+
