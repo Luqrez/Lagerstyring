@@ -73,35 +73,36 @@ function Database() {
     <div className="container">
         <h1>Lagerbeholdning</h1>
 
-        <table className="beholdning-tabel">
-            <thead>
-            <tr>
-                <th><input type="checkbox" checked={selectedAll} onChange={handleSelectAll} /></th>
-                <th>Navn</th>
-                <th>Beskrivelse</th>
-                <th>Mængde</th>
-                <th>Enhed</th>
-                <th>Kategori</th>
-                <th>Lokation</th>
-                <th>Oprettet</th>
-            </tr>
-            </thead>
-            <tbody>
-            {beholdning.map((vare) => (
-                <tr key={vare.id}>
-                    <td><input type="checkbox" checked={selectedItems[vare.id] || false} onChange={(e) => handleSelectItem(vare.id, e.target.checked)} /></td>
-                    <td id="navn">{vare.navn}</td>
-                    <td>{vare.beskrivelse}</td>
-                    <td>{vare.mængde}</td>
-                    <td>{vare.enhed}</td>
-                    <td>{vare.kategori}</td>
-                    <td>{vare.lokation}</td>
-                    <td>{new Date(vare.oprettet).toLocaleDateString('da-DK')}</td>
+        <div className="table-scroll-wrapper">
+            <table className="beholdning-tabel">
+                <thead>
+                <tr>
+                    <th><input type="checkbox" checked={selectedAll} onChange={handleSelectAll} /></th>
+                    <th>Navn</th>
+                    <th>Beskrivelse</th>
+                    <th>Mængde</th>
+                    <th>Enhed</th>
+                    <th>Kategori</th>
+                    <th>Lokation</th>
+                    <th>Oprettet</th>
                 </tr>
-            ))}
-            </tbody>
-        </table>
-
+                </thead>
+                <tbody>
+                {beholdning.map((vare) => (
+                    <tr key={vare.id}>
+                        <td><input type="checkbox" checked={selectedItems[vare.id] || false} onChange={(e) => handleSelectItem(vare.id, e.target.checked)} /></td>
+                        <td id="navn">{vare.navn}</td>
+                        <td>{vare.beskrivelse}</td>
+                        <td>{vare.mængde}</td>
+                        <td>{vare.enhed}</td>
+                        <td>{vare.kategori}</td>
+                        <td>{vare.lokation}</td>
+                        <td>{new Date(vare.oprettet).toLocaleDateString('da-DK')}</td>
+                    </tr>
+                ))}
+                </tbody>
+            </table>
+        </div>
         {beholdning.length === 0 && <p>Ingen varer fundet i beholdningen.</p>}
     </div>
     );

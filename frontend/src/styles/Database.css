@@ -1,11 +1,33 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+}
+
+#root {
+    overflow: hidden; /* no scroll bar */
+}
+
 .container {
+    height: 100vh;
+    padding: 50px 10px 75px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
     width: 100%;
 }
 
-table {
+.table-scroll-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    background: #F9F7F7;
+    border-radius: 6px;
+    margin-bottom: 75px;
+}
+
+.beholdning-tabel {
     width: 100%;
     border-collapse: collapse;
-    
 }
 
 td, th {
@@ -15,7 +37,7 @@ td, th {
 }
 
 #navn {
-    color:  navy;
+    color: navy;
 }
 
 input {
