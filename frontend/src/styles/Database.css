@@ -1,7 +1,25 @@
+.container {
+    width: 100%;
+}
+
 table {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, 1fr);
-    grid-template-rows: repeat(auto-fit, 1fr);
-    gap: 10px;
-    border: 1px solid black;
+    width: 100%;
+    border-collapse: collapse;
+    
+}
+
+td, th {
+    text-align: left;
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+}
+
+#navn {
+    color:  navy;
+}
+
+input {
+    width: 19px;
+    height: 19px;
+    margin: 0px 5px;
 }

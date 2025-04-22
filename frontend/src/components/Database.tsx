@@ -19,6 +19,10 @@ function Database() {
     const [beholdning, setBeholdning] = useState<Beholdning[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [selectedAll, setSelectedAll] = useState(false);
+    const [selectedItems, setSelectedItems] = useState<{[key: number]: boolean}>({});
+
+
 
     useEffect(() => {
         getBeholdning();
@@ -46,6 +50,25 @@ function Database() {
     if (loading) return <div>Indlæser...</div>;
     if (error) return <div>Fejl: {error}</div>;
 
+
+    const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const isChecked = event.target.checked;
+        setSelectedAll(isChecked);
+        
+        const newSelectedItems: {[key: number]: boolean} = {};
+        beholdning.forEach(item => {
+            newSelectedItems[item.id] = isChecked;
+        });
+        setSelectedItems(newSelectedItems);
+    };
+
+    const handleSelectItem = (id: number, checked: boolean) => {
+        setSelectedItems(prev => ({
+            ...prev,
+            [id]: checked
+        }));
+    };
+
     return(
     <div className="container">
         <h1>Lagerbeholdning</h1>
@@ -53,7 +76,7 @@ function Database() {
         <table className="beholdning-tabel">
             <thead>
             <tr>
-                <th>ID</th>
+                <th><input type="checkbox" checked={selectedAll} onChange={handleSelectAll} /></th>
                 <th>Navn</th>
                 <th>Beskrivelse</th>
                 <th>Mængde</th>
@@ -66,8 +89,8 @@ function Database() {
             <tbody>
             {beholdning.map((vare) => (
                 <tr key={vare.id}>
-                    <td>{vare.id}</td>
-                    <td>{vare.navn}</td>
+                    <td><input type="checkbox" checked={selectedItems[vare.id] || false} onChange={(e) => handleSelectItem(vare.id, e.target.checked)} /></td>
+                    <td id="navn">{vare.navn}</td>
                     <td>{vare.beskrivelse}</td>
                     <td>{vare.mængde}</td>
                     <td>{vare.enhed}</td>
