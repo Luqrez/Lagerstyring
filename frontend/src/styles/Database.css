@@ -1,33 +1,11 @@
-html, body {
-    margin: 0;
-    padding: 0;
-    height: 100vh;
-}
-
-#root {
-    overflow: hidden; /* no scroll bar */
-}
-
 .container {
-    height: 100vh;
-    padding: 50px 10px 75px;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
     width: 100%;
 }
 
-.table-scroll-wrapper {
-    flex: 1;
-    overflow-y: auto;
-    background: #F9F7F7;
-    border-radius: 6px;
-    margin-bottom: 75px;
-}
-
-.beholdning-tabel {
+table {
     width: 100%;
     border-collapse: collapse;
+
 }
 
 td, th {
@@ -37,11 +15,35 @@ td, th {
 }
 
 #navn {
-    color: navy;
+    color:  navy;
 }
 
 input {
     width: 19px;
     height: 19px;
     margin: 0px 5px;
+}
+
+.sortable {
+    cursor: pointer;
+    position: relative;
+    padding-right: 20px; /* Make space for the indicator */
+}
+
+/* Base style for all headers to reserve space */
+th.sortable::after {
+    content: '';
+    position: absolute;
+    right: 8px;
+    width: 12px;
+    height: 12px;
+}
+
+/* Specific styles for sorted headers */
+th.sort-asc::after {
+    content: '▲';
+}
+
+th.sort-desc::after {
+    content: '▼';
 }
