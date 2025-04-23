@@ -82,6 +82,7 @@ th.sort-desc::after {
     border-collapse: collapse;
 }
 
+
 .table-header {
     display:flex;
     align-items: center;

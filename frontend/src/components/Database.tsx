@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
 import { Button } from "../components/Button";
-import supabase from "../../utils/supabase";
+// import supabase from "../../utils/supabase";
 import "../styles/Database.css";
 
 // Interface der afspejler strukturen i beholdning-tabellen
 interface Beholdning {
-    id: number;
-    oprettet: string;
-    navn: string;
-    beskrivelse: string;
-    mængde: number;
-    kategori: string;
-    lokation: string;
-    enhed: string;
+    Id: number;
+    Oprettet: string;
+    Navn: string;
+    Beskrivelse: string;
+    Mængde: number;
+    Kategori: string;
+    Lokation: string;
+    Enhed: string;
 }
 
 function Database() {
@@ -31,14 +31,30 @@ function Database() {
     async function getBeholdning() {
         try {
             setLoading(true);
-            const { data, error } = await supabase.from("beholdning").select();
+            // Fetch data from the backend API instead of directly from Supabase
+            console.log("Attempting to fetch data from backend...");
+            const response = await fetch('http://localhost:5212/api/beholdning', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                },
+            });
 
-            if (error) throw error;
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
 
+            const data = await response.json();
+            console.log("Data received from backend:", data);
             setBeholdning(data || []);
         } catch (err) {
             console.error("Fejl ved hentning af beholdning:", err);
-            setError("Der opstod en fejl ved hentning af data");
+            // More detailed error message
+            if (err instanceof TypeError && err.message.includes('Failed to fetch')) {
+                setError("Kunne ikke forbinde til backend-serveren. Sørg for at backend-serveren kører på http://localhost:5212");
+            } else {
+                setError(`Der opstod en fejl ved hentning af data: ${err instanceof Error ? err.message : String(err)}`);
+            }
         } finally {
             setLoading(false);
         }
@@ -50,15 +66,15 @@ function Database() {
 
         const newSelectedItems: { [key: number]: boolean } = {};
         beholdning.forEach(item => {
-            newSelectedItems[item.id] = isChecked;
+            newSelectedItems[item.Id] = isChecked;
         });
         setSelectedItems(newSelectedItems);
     };
 
-    const handleSelectItem = (id: number, checked: boolean) => {
+    const handleSelectItem = (Id: number, checked: boolean) => {
         setSelectedItems(prev => ({
             ...prev,
-            [id]: checked
+            [Id]: checked
         }));
     };
 
@@ -108,26 +124,26 @@ function Database() {
                     <thead>
                         <tr>
                             <th><input type="checkbox" checked={selectedAll} onChange={handleSelectAll} /></th>
-                            <th onClick={() => handleSort('navn')} className={`sortable ${sortColumn === 'navn' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}`}>Navn</th>
-                            <th onClick={() => handleSort('beskrivelse')} className={`sortable ${sortColumn === 'beskrivelse' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}`}>Beskrivelse</th>
-                            <th onClick={() => handleSort('mængde')} className={`sortable ${sortColumn === 'mængde' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}`}>Mængde</th>
-                            <th onClick={() => handleSort('enhed')} className={`sortable ${sortColumn === 'enhed' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}`}>Enhed</th>
-                            <th onClick={() => handleSort('kategori')} className={`sortable ${sortColumn === 'kategori' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}`}>Kategori</th>
-                            <th onClick={() => handleSort('lokation')} className={`sortable ${sortColumn === 'lokation' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}`}>Lokation</th>
-                            <th onClick={() => handleSort('oprettet')} className={`sortable ${sortColumn === 'oprettet' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}`}>Oprettet</th>
+                            <th onClick={() => handleSort('Navn')} className={`sortable ${sortColumn === 'Navn' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}`}>Navn</th>
+                            <th onClick={() => handleSort('Beskrivelse')} className={`sortable ${sortColumn === 'Beskrivelse' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}`}>Beskrivelse</th>
+                            <th onClick={() => handleSort('Mængde')} className={`sortable ${sortColumn === 'Mængde' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}`}>Mængde</th>
+                            <th onClick={() => handleSort('Enhed')} className={`sortable ${sortColumn === 'Enhed' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}`}>Enhed</th>
+                            <th onClick={() => handleSort('Kategori')} className={`sortable ${sortColumn === 'Kategori' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}`}>Kategori</th>
+                            <th onClick={() => handleSort('Lokation')} className={`sortable ${sortColumn === 'Lokation' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}`}>Lokation</th>
+                            <th onClick={() => handleSort('Oprettet')} className={`sortable ${sortColumn === 'Oprettet' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}`}>Oprettet</th>
                         </tr>
                     </thead>
                     <tbody>
                         {sortedBeholdning.map((vare) => (
-                            <tr key={vare.id}>
-                                <td><input type="checkbox" checked={selectedItems[vare.id] || false} onChange={(e) => handleSelectItem(vare.id, e.target.checked)} /></td>
-                                <td id="navn">{vare.navn}</td>
-                                <td>{vare.beskrivelse}</td>
-                                <td>{vare.mængde}</td>
-                                <td>{vare.enhed}</td>
-                                <td>{vare.kategori}</td>
-                                <td>{vare.lokation}</td>
-                                <td>{new Date(vare.oprettet).toLocaleDateString('da-DK')}</td>
+                            <tr key={vare.Id}>
+                                <td><input type="checkbox" checked={selectedItems[vare.Id] || false} onChange={(e) => handleSelectItem(vare.Id, e.target.checked)} /></td>
+                                <td id="navn">{vare.Navn}</td>
+                                <td>{vare.Beskrivelse}</td>
+                                <td>{vare.Mængde}</td>
+                                <td>{vare.Enhed}</td>
+                                <td>{vare.Kategori}</td>
+                                <td>{vare.Lokation}</td>
+                                <td>{new Date(vare.Oprettet).toLocaleDateString('da-DK')}</td>
                             </tr>
                         ))}
                     </tbody>
