@@ -19,7 +19,7 @@ html, body {
 }
 
 h1 {
-    margin: 15px;
+    margin: 15px 5px 15px 15px;
     display: inline-block;
 }
 
@@ -86,4 +86,15 @@ th.sort-desc::after {
     display:flex;
     align-items: center;
     justify-content: space-between;
+}
+
+.title-holder {
+    display: flex;
+    align-items: baseline;
+}
+
+p {
+    color: rgba(34, 49, 99, 0.593);
+    font-weight: 600;
+
 }

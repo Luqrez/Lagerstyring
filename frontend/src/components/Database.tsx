@@ -4,6 +4,7 @@ import supabase from "../../utils/supabase";
 import "../styles/Database.css";
 
 // Interface der afspejler strukturen i beholdning-tabellen
+// used for type safety. Good practice
 interface Beholdning {
     id: number;
     oprettet: string;
@@ -15,6 +16,7 @@ interface Beholdning {
     enhed: string;
 }
 
+// Component
 function Database() {
     const [beholdning, setBeholdning] = useState<Beholdning[]>([]);
     const [loading, setLoading] = useState(true);
@@ -93,7 +95,10 @@ function Database() {
     return (
         <div className="container">
             <div className="table-header">
-                <h1>Lagerbeholdning</h1>
+                <div className='title-holder'>
+                    <h1>Lagerbeholdning</h1>
+                    <p>28 Varer</p>
+                </div>
                 <div>
                     <Button label="6969" variant="secondary"/>
                     <Button label="Slet" variant="delete" />
