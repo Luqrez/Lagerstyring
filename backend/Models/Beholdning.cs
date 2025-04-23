@@ -2,8 +2,10 @@ using System;
 using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
 
+
 namespace Backend.Models
 {
+
     [Table("beholdning")]
     public class Beholdning : BaseModel
     {
@@ -18,10 +20,11 @@ namespace Backend.Models
         [Column("mængde")]
         public int Mængde { get; set; }                // integer
         [Column("kategori")]
-        public string Kategori { get; set; }           // text
+        public int Kategori { get; set; }           // text
         [Column("lokation")]
-        public string Lokation { get; set; }           // character varying
+        public int Lokation { get; set; }           // character varying
         [Column("enhed")]
-        public string Enhed { get; set; }              // text
+        public int Enhed { get; set; }              // text
     }
-}
+};
+
