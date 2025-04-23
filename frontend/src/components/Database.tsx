@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Button } from "../components/Button";
-// import supabase from "../../utils/supabase";
 import "../styles/Database.css";
 
 // Interface der afspejler strukturen i beholdning-tabellen
@@ -31,8 +30,6 @@ function Database() {
     async function getBeholdning() {
         try {
             setLoading(true);
-            // Fetch data from the backend API instead of directly from Supabase
-            console.log("Attempting to fetch data from backend...");
             const response = await fetch('http://localhost:5212/api/beholdning', {
                 method: 'GET',
                 headers: {
@@ -45,11 +42,9 @@ function Database() {
             }
 
             const data = await response.json();
-            console.log("Data received from backend:", data);
             setBeholdning(data || []);
         } catch (err) {
             console.error("Fejl ved hentning af beholdning:", err);
-            // More detailed error message
             if (err instanceof TypeError && err.message.includes('Failed to fetch')) {
                 setError("Kunne ikke forbinde til backend-serveren. Sørg for at backend-serveren kører på http://localhost:5212");
             } else {
@@ -111,9 +106,7 @@ function Database() {
             <div className="table-header">
                 <h1>Lagerbeholdning</h1>
                 <div>
-                    <Button label="6969" variant="secondary"/>
                     <Button label="Slet" variant="delete" />
-
                     <Button label="+ Opret ny" variant="primary"/>
                 </div>
             </div>
