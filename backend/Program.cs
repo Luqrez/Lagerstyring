@@ -1,44 +1,24 @@
-var builder = WebApplication.CreateBuilder(args);
+using System;
+using Backend.Models;
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+DotNetEnv.Env.Load();
+var url = Environment.GetEnvironmentVariable("SUPABASE_URL") 
+    ?? throw new InvalidOperationException("SUPABASE_URL environment variable is not set");
+var key = Environment.GetEnvironmentVariable("SUPABASE_ANON_KEY")
+    ?? throw new InvalidOperationException("SUPABASE_ANON_KEY environment variable is not set");
+var options = new Supabase.SupabaseOptions
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseHttpsRedirection();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
+    AutoConnectRealtime = true
 };
+var supabase = new Supabase.Client(url, key, options);
+await supabase.InitializeAsync();
 
-app.MapGet("/weatherforecast", () =>
+// A result can be fetched like so.
+var result = await supabase.From<Beholdning>().Get();
+var beholdning = result.Models;
+
+Console.WriteLine("beholdning:");
+foreach (var item in beholdning)
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
-
-app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    Console.WriteLine($"Id: {item.Id}, Oprettet: {item.Oprettet}, Navn: {item.Navn}, Beskrivelse: {item.Beskrivelse}, Mængde: {item.Mængde}, Kategori: {item.Kategori}, Lokation: {item.Lokation}, Enhed: {item.Enhed}");
 }
