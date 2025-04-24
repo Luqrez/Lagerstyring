@@ -182,8 +182,14 @@ function Database() {
                     </thead>
                     <tbody>
                         {sortedBeholdning.map((vare) => (
-                            <tr key={vare.Id}>
-                                <td><input type="checkbox" checked={selectedItems[vare.Id] || false} onChange={(e) => handleSelectItem(vare.Id, e.target.checked)} /></td>
+                            <tr key={vare.Id} onClick={() => handleSelectItem(vare.Id, !(selectedItems[vare.Id] || false))}>
+                                <td onClick={(e) => e.stopPropagation()}>
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedItems[vare.Id] || false}
+                                        onChange={(e) => handleSelectItem(vare.Id, e.target.checked)}
+                                    />
+                                </td>
                                 <td id="navn">{vare.Navn}</td>
                                 <td>{vare.Beskrivelse}</td>
                                 <td>{vare.Mængde}</td>

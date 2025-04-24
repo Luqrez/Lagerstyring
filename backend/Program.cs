@@ -68,6 +68,7 @@ app.UseCors(policy => policy
     .AllowCredentials());
 
 app.MapHub<BeholdningHub>("/realtime/beholdning");
+
 // Run the application
 Console.WriteLine("ASP.NET backend running...");
 app.Run();

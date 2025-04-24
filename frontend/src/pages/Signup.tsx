@@ -17,17 +17,20 @@ function Login() {
       return (
         <div className="main-holder">
           <div className="login-holder">
-            <h1>Login</h1>
+            <h1>Sign Up</h1>
             <p>Username</p>
             <input className="input-box" type="text" placeholder="Username" />
       
             <p>Password</p>
             <input className="input-box" type="password" placeholder="Password" />
+
+            <p>Confirm Password</p>
+            <input className="input-box" type="password" placeholder="Password" />
       
-            <button className="login-button">Login</button>
+            <button className="login-button">Sign Up</button>
       
             <p className="signup-link">
-            Don’t have an account? <Link to="/signup">Sign up</Link>
+            Already have an account? <Link to="/login">Login</Link>
             </p>
           </div>
         </div>

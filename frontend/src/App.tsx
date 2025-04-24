@@ -7,6 +7,7 @@ import Settings from './pages/Settings';
 import Header from './components/Header';
 import StockVarer from './pages/stock/Varer.tsx';
 import StockKategorier from './pages/stock/Kategorier.tsx';
+import Signup from './pages/Signup.tsx';
 
 import './styles/App.css';
 
@@ -22,6 +23,7 @@ function App() {
         <Route path="/settings" element={<Settings />} />
         <Route path="/stock/varer" element={<StockVarer />} />
         <Route path="/stock/kategorier" element={<StockKategorier />} />
+        <Route path="/signup" element={<Signup />} />
       </Routes>
     </div>
   );

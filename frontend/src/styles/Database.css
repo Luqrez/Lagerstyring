@@ -4,14 +4,9 @@ html, body {
     height: 100vh;
 }
 
-#root {
-    overflow: hidden; /* no scroll bar */
-    /* change test*/
-}
-
 .container {
-    height: 100vh;
-    padding: 0px 20px 75px;
+    height: calc(100vh-60px);
+    padding: 0px 20px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -98,4 +93,13 @@ p {
     color: rgba(34, 49, 99, 0.593);
     font-weight: 600;
 
+}
+
+tbody tr {
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+tbody tr:hover {
+    background-color: rgba(0, 0, 128, 0.05); /* light navy tint */
 }
