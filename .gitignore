@@ -3,3 +3,18 @@
 .qodo
 *.env
 .env
+
+# dependencies
+node_modules/
+packages/
+
+# builds
+dist/
+build/
+
+# env files
+.env
+
+# system files
+.DS_Store
+*.log

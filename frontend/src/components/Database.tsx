@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
 import { Button } from "../components/Button";
+
+// Used for streaming from server
+import { HubConnectionBuilder } from "@microsoft/signalr";
+
+
 import "../styles/Database.css";
 
 // Interface der afspejler strukturen i beholdning-tabellen
@@ -15,6 +20,20 @@ interface Beholdning {
     Enhed: string;
 }
 
+function mapRow(row: any): Beholdning {
+    return {
+        Id: row.id,
+        Oprettet: row.oprettet,
+        Navn: row.navn,
+        Beskrivelse: row.beskrivelse,
+        Mængde: row.mængde,
+        Kategori: row.kategori,
+        Lokation: row.lokation,
+        Enhed: row.enhed,
+    };
+}
+
+
 // Component
 function Database() {
     const [beholdning, setBeholdning] = useState<Beholdning[]>([]);
@@ -27,6 +46,36 @@ function Database() {
 
     useEffect(() => {
         getBeholdning();
+
+        const connection = new HubConnectionBuilder()
+        .withUrl("http://localhost:5212/realtime/beholdning")
+        .withAutomaticReconnect()
+        .build();
+
+        connection.on("ReceiveUpdate", (data: any) => {
+            console.log("Realtime update received:", data);
+          
+            const { eventType, new: newRow, old: oldRow } = data;
+          
+            if (eventType === "INSERT" && newRow) {
+              setBeholdning(prev => [...prev, mapRow(newRow)]);
+            } else if (eventType === "UPDATE" && newRow) {
+              setBeholdning(prev =>
+                prev.map(row => (row.Id === newRow.id ? mapRow(newRow) : row))
+              );
+            } else if (eventType === "DELETE" && oldRow) {
+              setBeholdning(prev => prev.filter(row => row.Id !== oldRow.id));
+            }
+          });
+          
+
+        connection.start()
+            .then(() => console.log("SignalR connected"))
+            .catch((err) => console.error("SignalR connection error:", err));
+
+        return () => {
+            connection.stop();
+        };
     }, []);
 
     async function getBeholdning() {

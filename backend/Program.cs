@@ -4,6 +4,7 @@ using Backend.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Backend.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,9 @@ builder.Services.AddControllers()
     });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Used to setup streaming from microservice(realtime-bridge) to client
+builder.Services.AddSignalR();
 
 // Load environment variables
 DotNetEnv.Env.Load();
@@ -63,5 +67,7 @@ app.UseCors(policy => policy
     .AllowAnyHeader()
     .AllowCredentials());
 
+app.MapHub<BeholdningHub>("/realtime/beholdning");
 // Run the application
+Console.WriteLine("ASP.NET backend running...");
 app.Run();
