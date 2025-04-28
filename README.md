@@ -895,6 +895,46 @@ http://localhost:5173
 
 You should see the Lagerstyring application running in your browser.
 
+### Realtime Bridge Setup
+
+The realtime bridge is a Node.js application that facilitates real-time communication between the backend and frontend.
+
+#### 1. Install Dependencies
+
+Navigate to the realtime-bridge directory and install the required packages:
+
+```bash
+cd realtime-bridge
+npm install
+```
+
+This command installs all the dependencies required for the realtime bridge.
+
+#### 2. Start the Realtime Bridge
+
+Start the realtime bridge server:
+
+```bash
+npm run dev
+```
+
+This starts the realtime bridge service that enables real-time updates in the application.
+
+### Installing All Dependencies at Once
+
+For convenience, you can install dependencies for all components (root, frontend, and realtime-bridge) with a single command from the project root:
+
+```bash
+npm run install-all
+```
+
+This command will:
+1. Install dependencies in the root directory
+2. Install dependencies in the frontend directory
+3. Install dependencies in the realtime-bridge directory
+
+Use this approach to quickly set up all components without having to navigate to each directory separately.
+
 ### Database Setup
 
 The application uses Supabase as its database provider. Follow these steps to set up the database:
