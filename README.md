@@ -786,11 +786,12 @@ cd Lagerstyring
 
 #### 2. Configure Environment Variables
 
-Create a `.env` file in the `backend` directory with the following content:
+The application uses a single `.env` file in the root directory that is shared by all components. Create a `.env` file in the root directory with the following content:
 
 ```
 SUPABASE_URL=your_supabase_url
 SUPABASE_ANON_KEY=your_supabase_anon_key
+BACKEND_ENDPOINT=http://localhost:5212/api/realtime/beholdning
 ```
 
 Replace `your_supabase_url` and `your_supabase_anon_key` with your actual Supabase credentials.
@@ -847,17 +848,16 @@ You should see the Swagger UI with the available API endpoints. This confirms th
 
 Follow these steps to set up the frontend application:
 
-#### 1. Configure Environment Variables
+#### 1. Frontend Environment Variables
 
-Create a `.env` file in the `frontend` directory with the following content:
+The frontend uses the same `.env` file in the root directory as the backend. If you need frontend-specific environment variables, add them to the root `.env` file with the `VITE_` prefix:
 
 ```
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+# Add these to the root .env file for frontend use
 VITE_BACKEND_URL=http://localhost:5212
+VITE_API_TIMEOUT=30000
+VITE_LOG_LEVEL=info
 ```
-
-Replace `your_supabase_url` and `your_supabase_anon_key` with your actual Supabase credentials.
 
 > **Note**: Variables in the `.env` file must be prefixed with `VITE_` to be accessible in the frontend code.
 
@@ -982,14 +982,14 @@ VALUES
 
 1. In your Supabase project dashboard, go to Settings > API
 2. Copy the URL and anon/public key
-3. Use these values in your `.env` files for both backend and frontend
+3. Use these values in your root `.env` file
 
 ### Troubleshooting Installation Issues
 
 #### Backend Issues
 
 - **Port Conflict**: If port 5212 is already in use, modify the `applicationUrl` in `launchSettings.json`
-- **Database Connection**: Ensure your Supabase credentials are correct in the `.env` file
+- **Database Connection**: Ensure your Supabase credentials are correct in the root `.env` file
 - **Missing Dependencies**: Run `dotnet restore` again if you encounter missing package errors
 
 #### Frontend Issues
@@ -1002,7 +1002,7 @@ VALUES
 
 - **CORS Errors**: Ensure the backend CORS configuration includes the frontend origin
 - **Network Errors**: Check that both servers are running and accessible
-- **API Errors**: Verify the backend URL in the frontend `.env` file is correct
+- **API Errors**: Verify the backend URL in the root `.env` file is correct
 
 ## Development Workflow
 
@@ -1127,6 +1127,20 @@ Full-stack development involves working on both the backend and frontend simulta
    - Use Visual Studio for backend development
    - Use VS Code for frontend development
    - Or use VS Code for both with appropriate extensions
+
+3. **Running the Full Stack**:
+   - Use the root-level npm script to start all components:
+     ```bash
+     npm run dev
+     ```
+   - This command:
+     - Starts the backend server on http://localhost:5212
+     - Starts the realtime-bridge on its default port
+     - Starts the frontend server on http://localhost:5173
+   - **Important**: Make sure you have a `.env` file in the root directory with the required environment variables:
+     - SUPABASE_URL
+     - SUPABASE_ANON_KEY
+     - BACKEND_ENDPOINT
 
 #### Development Cycle
 
@@ -2763,65 +2777,55 @@ This section provides guidelines for contributing to the Lagerstyring project, e
 
 Environment variables are used to configure the application for different environments without changing the code. This section documents all environment variables used in the Lagerstyring application.
 
-### Backend Environment Variables
+### Root-Level Environment Variables
 
-These variables should be defined in a `.env` file in the `backend` directory.
+The Lagerstyring application now uses a single `.env` file in the root directory that is shared by all components (backend, frontend, and realtime-bridge). This simplifies configuration and ensures consistency across all components.
+
+#### Setting Up the Root .env File
+
+Create a `.env` file in the root directory of the project with the following variables:
 
 #### Required Variables
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `SUPABASE_URL` | The URL of your Supabase project | `https://example.supabase.co` |
-| `SUPABASE_ANON_KEY` | The anonymous key for Supabase authentication | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` |
+| Variable | Description | Used By | Example |
+|----------|-------------|---------|---------|
+| `SUPABASE_URL` | The URL of your Supabase project | Backend, Realtime Bridge | `https://example.supabase.co` |
+| `SUPABASE_ANON_KEY` | The anonymous key for Supabase authentication | Backend, Realtime Bridge | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` |
+| `BACKEND_ENDPOINT` | The endpoint for the realtime bridge to send updates to | Realtime Bridge | `http://localhost:5212/api/realtime/beholdning` |
 
 #### Optional Variables
 
-| Variable | Description | Default | Example |
-|----------|-------------|---------|---------|
-| `ASPNETCORE_ENVIRONMENT` | The environment the application is running in | `Development` | `Production` |
-| `CORS_ORIGINS` | Comma-separated list of allowed origins for CORS | `http://localhost:5173` | `https://app.example.com,https://admin.example.com` |
-| `LOG_LEVEL` | The minimum log level to record | `Information` | `Debug`, `Warning`, `Error` |
+| Variable | Description | Used By | Default | Example |
+|----------|-------------|---------|---------|---------|
+| `ASPNETCORE_ENVIRONMENT` | The environment the application is running in | Backend | `Development` | `Production` |
+| `CORS_ORIGINS` | Comma-separated list of allowed origins for CORS | Backend | `http://localhost:5173` | `https://app.example.com,https://admin.example.com` |
+| `LOG_LEVEL` | The minimum log level to record | Backend | `Information` | `Debug`, `Warning`, `Error` |
+| `VITE_BACKEND_URL` | The URL of the backend API | Frontend | `http://localhost:5212` | `https://api.example.com` |
+| `VITE_API_TIMEOUT` | Timeout for API requests in milliseconds | Frontend | `30000` | `60000` |
+| `VITE_LOG_LEVEL` | The minimum log level to record | Frontend | `info` | `debug`, `warn`, `error` |
+| `VITE_ENABLE_MOCK_API` | Whether to use mock API responses | Frontend | `false` | `true` |
 
 #### Example .env File
 
 ```
+# Required variables
 SUPABASE_URL=https://wilitrpckvtndqvxayxn.supabase.co
 SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+BACKEND_ENDPOINT=http://localhost:5212/api/realtime/beholdning
+
+# Optional backend variables
 ASPNETCORE_ENVIRONMENT=Development
 CORS_ORIGINS=http://localhost:5173
 LOG_LEVEL=Information
-```
 
-### Frontend Environment Variables
-
-These variables should be defined in a `.env` file in the `frontend` directory.
-
-#### Required Variables
-
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `VITE_BACKEND_URL` | The URL of the backend API | `http://localhost:5212` |
-| `VITE_SUPABASE_URL` | The URL of your Supabase project | `https://example.supabase.co` |
-| `VITE_SUPABASE_ANON_KEY` | The anonymous key for Supabase authentication | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` |
-
-#### Optional Variables
-
-| Variable | Description | Default | Example |
-|----------|-------------|---------|---------|
-| `VITE_API_TIMEOUT` | Timeout for API requests in milliseconds | `30000` | `60000` |
-| `VITE_LOG_LEVEL` | The minimum log level to record | `info` | `debug`, `warn`, `error` |
-| `VITE_ENABLE_MOCK_API` | Whether to use mock API responses | `false` | `true` |
-
-#### Example .env File
-
-```
+# Optional frontend variables
 VITE_BACKEND_URL=http://localhost:5212
-VITE_SUPABASE_URL=https://wilitrpckvtndqvxayxn.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 VITE_API_TIMEOUT=30000
 VITE_LOG_LEVEL=info
 VITE_ENABLE_MOCK_API=false
 ```
+
+> **Note**: Frontend variables must be prefixed with `VITE_` to be accessible in the frontend code.
 
 ### Environment-Specific Configuration
 
