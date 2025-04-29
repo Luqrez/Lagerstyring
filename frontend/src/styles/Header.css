@@ -3,6 +3,7 @@
     color: #EDEDED;
     display: flex;
     align-items: center;
+    position: relative; /* Tilføjet position relative */
     height: 60px;
     width: 100%;
 }
@@ -43,4 +44,18 @@ h1 {
     background-color: transparent;
     text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
     color: #ffffff;
+}
+
+.header button, #login-button {
+    background-color: transparent;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    position: absolute; /* Absolutpositionering */
+    right: 10px; /* Placering fra højre kant */
+    top: 50%; /* Centreret vertikalt */
+    transform: translateY(-50%); /* Finere vertikal centrering */
 }

@@ -1,10 +1,13 @@
 using System;
+using System.IO;
 using System.Text.Json.Serialization;
 using Backend.Models;
+using DotNetEnv;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Backend.Hubs;
+using Supabase;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +26,8 @@ builder.Services.AddSwaggerGen();
 // Used to setup streaming from microservice(realtime-bridge) to client
 builder.Services.AddSignalR();
 
+// Initialize Supabase client
+Console.WriteLine("Initializing Supabase client");
 // Load environment variables from root directory
 DotNetEnv.Env.Load(Path.Combine(Directory.GetCurrentDirectory(), "..", ".env"));
 var url = Environment.GetEnvironmentVariable("SUPABASE_URL")
@@ -67,6 +72,7 @@ app.UseCors(policy => policy
     .AllowAnyHeader()
     .AllowCredentials());
 
+// Map BeholdningHub for realtime updates
 app.MapHub<BeholdningHub>("/realtime/beholdning");
 
 // Run the application
