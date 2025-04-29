@@ -103,3 +103,10 @@ tbody tr {
 tbody tr:hover {
     background-color: rgba(0, 0, 128, 0.05); /* light navy tint */
 }
+
+.center-loader {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
