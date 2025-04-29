@@ -1,17 +1,77 @@
 
 .popup {
-    position: fixed;
-    top: 0;
-    right: -300px; /* start hidden outside of view */
-    width: 300px;
-    height: 100%;
-    background: #fff;
-    box-shadow: -2px 0 10px rgba(0,0,0,0.3);
-    transition: right 0.3s ease;
-    padding: 20px;
-    z-index: 1000;
-  }
-  
-  .popup.open {
-    right: 0; /* slide into view */
-  }
+  position: fixed;
+  top: 0;
+  right: -700px; /* start hidden outside of view */
+  width: 700px;
+  height: 100%;
+  background: #fff;
+  box-shadow: -2px 0 10px rgba(0,0,0,0.3);
+  transition: right 0.3s ease;
+  z-index: 1000;
+  border-left: 1px solid rgb(180, 180, 180);
+}
+
+.popup.open {
+  right: 0; /* slide into view */
+}
+
+.popup .input-box {
+  width: 50%;
+  margin-bottom: 10px;
+}
+
+.textarea-box {
+  width: 50%;
+  min-height: 150px;
+  background-color: #EDEDED;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  padding: 10px 14px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+  resize: none;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+
+.popup .container {
+  display: flex;
+  flex-direction:column;
+  border-bottom: 1px solid rgb(180, 180, 180);
+  height: auto;
+  padding: 10px;
+  padding-bottom: 0;
+  justify-content: space-between;
+}
+
+.row-holder {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
+
+
+h3 {
+  color: black;
+  font-weight: 600;
+  padding: 10px;
+}
+
+p {
+  padding: 10px;
+}
