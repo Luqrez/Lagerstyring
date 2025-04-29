@@ -2,6 +2,12 @@ import { createClient } from '@supabase/supabase-js'
 import dotenv from 'dotenv'
 import axios from 'axios'
 import path from 'path'
+import { fileURLToPath } from 'url'
+import { dirname } from 'path'
+
+// Emulate __dirname
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 // Load environment variables from root directory
 dotenv.config({ path: path.resolve(__dirname, '..', '.env') })
