@@ -20,6 +20,9 @@ interface Beholdning {
     Lokation: string;
     Enhed: string;
 }
+interface DatabaseProps {
+    setisOpen: (isOpen: boolean) => void;
+}
 
 function mapRow(row: any): Beholdning {
     return {
@@ -39,7 +42,7 @@ interface DatabaseProps {
 }
 
 // Component
-function Database({ setIsOpen }: DatabaseProps) {
+function Database({setisOpen}: DatabaseProps) {
     const [beholdning, setBeholdning] = useState<Beholdning[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -165,7 +168,7 @@ function Database({ setIsOpen }: DatabaseProps) {
                 </div>
                 <div>
                     <Button label="Slet" variant="delete" />
-                    <Button label="+ Opret ny" variant="primary"/>
+                    <Button label="+ Opret ny" variant="primary" onClick={() => setisOpen(true)}/>
                 </div>
             </div>
 

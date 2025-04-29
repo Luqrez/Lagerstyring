@@ -1,14 +1,17 @@
+
 .popup {
     position: fixed;
     top: 0;
-    right: -300px;
+    right: -300px; /* start hidden outside of view */
     width: 300px;
     height: 100%;
-    background: white;
+    background: #fff;
+    box-shadow: -2px 0 10px rgba(0,0,0,0.3);
     transition: right 0.3s ease;
+    padding: 20px;
+    z-index: 1000;
   }
   
   .popup.open {
-    right: 0;
+    right: 0; /* slide into view */
   }
-  

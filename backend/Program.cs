@@ -23,8 +23,8 @@ builder.Services.AddSwaggerGen();
 // Used to setup streaming from microservice(realtime-bridge) to client
 builder.Services.AddSignalR();
 
-// Load environment variables
-DotNetEnv.Env.Load();
+// Load environment variables from root directory
+DotNetEnv.Env.Load(Path.Combine(Directory.GetCurrentDirectory(), "..", ".env"));
 var url = Environment.GetEnvironmentVariable("SUPABASE_URL")
     ?? throw new InvalidOperationException("SUPABASE_URL environment variable is not set");
 var key = Environment.GetEnvironmentVariable("SUPABASE_ANON_KEY")
