@@ -19,7 +19,7 @@ function Header() {
                 </NavLink>
                 <NavLink to="/orders">
                     <i className="fa-solid fa-truck-fast" style={{ marginRight: '8px' }}></i>
-                    Ordrer
+                    Indkøb
                 </NavLink>
                 <NavLink to="/users">
                     <i className="fa-solid fa-users" style={{ marginRight: '8px' }}></i>

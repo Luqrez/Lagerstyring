@@ -41,6 +41,7 @@ namespace Backend.Controllers
                     Navn = b.Navn,
                     Beskrivelse = b.Beskrivelse,
                     Mængde = b.Mængde,
+                    Minimum = b.Minimum,
                     Kategori = kategorier.TryGetValue(b.Id, out var kat) ? kat : "Ukendt",
                     Lokation = lokationer.TryGetValue(b.Id, out var lok) ? lok : "Ukendt",
                     Enhed = enheder.TryGetValue(b.Id, out var enh) ? enh : "Ukendt"
