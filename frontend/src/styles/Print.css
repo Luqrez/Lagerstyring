@@ -1,0 +1,35 @@
+@media print {
+    .container {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    .header nav,
+    .header .divider {
+        display: none;
+    }
+
+    .header-title{
+        width: 100%;
+        text-align: center;
+    }
+    
+
+
+    button{
+        display: none;
+    }
+
+    .table-scroll-wrapper {
+        overflow: visible;
+    }
+
+    .table-header{
+        display: none !important;
+    }
+    
+
+
+ 
+}

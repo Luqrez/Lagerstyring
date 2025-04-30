@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
 import { Button } from "../components/Button";
 import Loading from "../components/Loading";
-
-// Used for streaming from server
-import { HubConnectionBuilder } from "@microsoft/signalr";
-
-
+import { getConnection, addListener, removeListener } from "../services/signalrService";
 import "../styles/Database.css";
+
 
 // Interface der afspejler strukturen i beholdning-tabellen
 // used for type safety. Good practice
@@ -16,21 +13,36 @@ interface Beholdning {
     Navn: string;
     Beskrivelse: string;
     Mængde: number;
+    Minimum: number;
     Kategori: string;
     Lokation: string;
     Enhed: string;
+
 }
 interface DatabaseProps {
     setisOpen: (isOpen: boolean) => void;
 }
 
-function mapRow(row: any): Beholdning {
+interface RowData {
+    id: number;
+    oprettet: string;
+    navn: string;
+    beskrivelse: string;
+    mængde: number;
+    min_mængde: number;
+    kategori: string;
+    lokation: string;
+    enhed: string;
+}
+
+function mapRow(row: RowData): Beholdning {
     return {
         Id: row.id,
         Oprettet: row.oprettet,
         Navn: row.navn,
         Beskrivelse: row.beskrivelse,
         Mængde: row.mængde,
+        Minimum: row.min_mængde,
         Kategori: row.kategori,
         Lokation: row.lokation,
         Enhed: row.enhed,
@@ -40,6 +52,8 @@ function mapRow(row: any): Beholdning {
 interface DatabaseProps {
     setIsOpen: (open: boolean) => void;
 }
+
+
 
 // Component
 function Database({setisOpen}: DatabaseProps) {
@@ -54,36 +68,34 @@ function Database({setisOpen}: DatabaseProps) {
     useEffect(() => {
         getBeholdning();
 
-        const connection = new HubConnectionBuilder()
-        .withUrl("http://localhost:5212/realtime/beholdning")
-        .withAutomaticReconnect()
-        .build();
+        // Use the signalrService to get a connection
+        getConnection();
 
-        connection.on("ReceiveUpdate", (data: any) => {
+        // Handle realtime updates
+        const handleRealtimeUpdate = (data: any) => {
             console.log("Realtime update received:", data);
-          
+
             const { eventType, new: newRow, old: oldRow } = data;
-          
             if (eventType === "INSERT" && newRow) {
-              setBeholdning(prev => [...prev, mapRow(newRow)]);
+                setBeholdning(prev => [...prev, mapRow(newRow)]);
             } else if (eventType === "UPDATE" && newRow) {
-              setBeholdning(prev =>
-                prev.map(row => (row.Id === newRow.id ? mapRow(newRow) : row))
-              );
+                setBeholdning(prev =>
+                    prev.map(row => (row.Id === newRow.id ? mapRow(newRow) : row))
+                );
             } else if (eventType === "DELETE" && oldRow) {
-              setBeholdning(prev => prev.filter(row => row.Id !== oldRow.id));
+                setBeholdning(prev => prev.filter(row => row.Id !== oldRow.id));
             }
-          });
-          
+        };
 
-        connection.start()
-            .then(() => console.log("SignalR connected"))
-            .catch((err) => console.error("SignalR connection error:", err));
+        // Add listener for realtime updates
+        addListener("ReceiveUpdate", handleRealtimeUpdate);
 
+        // Clean up on component unmount
         return () => {
-            connection.stop();
+            removeListener("ReceiveUpdate", handleRealtimeUpdate);
         };
     }, []);
+
 
     async function getBeholdning() {
         try {
@@ -100,6 +112,10 @@ function Database({setisOpen}: DatabaseProps) {
             }
 
             const data = await response.json();
+
+
+
+
             setBeholdning(data || []);
         } catch (err) {
             console.error("Fejl ved hentning af beholdning:", err);
@@ -167,8 +183,10 @@ function Database({setisOpen}: DatabaseProps) {
                     <p>28 Varer</p>
                 </div>
                 <div>
+
                     <Button label="Slet" variant="delete" />
                     <Button label="+ Opret ny" variant="primary" onClick={() => setisOpen(true)}/>
+                    <Button label="Tilføj indkøb" variant="primary" />
                 </div>
             </div>
 
@@ -181,6 +199,7 @@ function Database({setisOpen}: DatabaseProps) {
                             <th onClick={() => handleSort('Navn')} className={`sortable ${sortColumn === 'Navn' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}`}>Navn</th>
                             <th onClick={() => handleSort('Beskrivelse')} className={`sortable ${sortColumn === 'Beskrivelse' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}`}>Beskrivelse</th>
                             <th onClick={() => handleSort('Mængde')} className={`sortable ${sortColumn === 'Mængde' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}`}>Mængde</th>
+                            <th onClick={() => handleSort('Minimum')}>Minimum</th>
                             <th onClick={() => handleSort('Enhed')} className={`sortable ${sortColumn === 'Enhed' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}`}>Enhed</th>
                             <th onClick={() => handleSort('Kategori')} className={`sortable ${sortColumn === 'Kategori' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}`}>Kategori</th>
                             <th onClick={() => handleSort('Lokation')} className={`sortable ${sortColumn === 'Lokation' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}`}>Lokation</th>
@@ -200,6 +219,7 @@ function Database({setisOpen}: DatabaseProps) {
                                 <td id="navn">{vare.Navn}</td>
                                 <td>{vare.Beskrivelse}</td>
                                 <td>{vare.Mængde}</td>
+                                <td>{vare.Minimum}</td>
                                 <td>{vare.Enhed}</td>
                                 <td>{vare.Kategori}</td>
                                 <td>{vare.Lokation}</td>
