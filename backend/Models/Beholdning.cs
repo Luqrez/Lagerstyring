@@ -18,7 +18,9 @@ namespace Backend.Models
         [Column("beskrivelse")]
         public string Beskrivelse { get; set; }        // text
         [Column("mængde")]
-        public int Mængde { get; set; }                // integer
+        public int Mængde { get; set; }         
+        [Column("min_mængde")] 
+        public int Minimum { get; set; }     // integer
         [Column("kategori")]
         public string Kategori { get; set; }           // text
         [Column("lokation")]
