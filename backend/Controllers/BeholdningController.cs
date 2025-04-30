@@ -52,17 +52,6 @@ namespace Backend.Controllers
 
                 foreach (var b in beholdning)
                 {
-
-                    Id = b.Id,
-                    Oprettet = b.Oprettet,
-                    Navn = b.Navn,
-                    Beskrivelse = b.Beskrivelse,
-                    Mængde = b.Mængde,
-                    Minimum = b.Minimum,
-                    Kategori = kategorier.TryGetValue(b.Id, out var kat) ? kat : "Ukendt",
-                    Lokation = lokationer.TryGetValue(b.Id, out var lok) ? lok : "Ukendt",
-                    Enhed = enheder.TryGetValue(b.Id, out var enh) ? enh : "Ukendt"
-                }).ToList();
                     try
                     {
                         Console.WriteLine($"Processing Beholdning with Id: {b.Id}, Navn: {b.Navn}");
@@ -73,23 +62,16 @@ namespace Backend.Controllers
 
                         try
                         {
-                            if (!string.IsNullOrEmpty(b.Kategori))
+                            long kategoriId = b.Kategori;
+                            Console.WriteLine($"Looking up Kategori with Id: {kategoriId}");
+                            if (kategorier.TryGetValue(kategoriId, out var kat))
                             {
-                                long kategoriId = long.Parse(b.Kategori);
-                                Console.WriteLine($"Looking up Kategori with Id: {kategoriId}");
-                                if (kategorier.TryGetValue(kategoriId, out var kat))
-                                {
-                                    kategoriValue = kat;
-                                    Console.WriteLine($"Found Kategori: {kategoriValue}");
-                                }
-                                else
-                                {
-                                    Console.WriteLine($"Kategori with Id {kategoriId} not found");
-                                }
+                                kategoriValue = kat;
+                                Console.WriteLine($"Found Kategori: {kategoriValue}");
                             }
                             else
                             {
-                                Console.WriteLine("Kategori is null or empty");
+                                Console.WriteLine($"Kategori with Id {kategoriId} not found");
                             }
                         }
                         catch (Exception ex)
@@ -99,23 +81,16 @@ namespace Backend.Controllers
 
                         try
                         {
-                            if (!string.IsNullOrEmpty(b.Lokation))
+                            long lokationId = b.Lokation;
+                            Console.WriteLine($"Looking up Lokation with Id: {lokationId}");
+                            if (lokationer.TryGetValue(lokationId, out var lok))
                             {
-                                long lokationId = long.Parse(b.Lokation);
-                                Console.WriteLine($"Looking up Lokation with Id: {lokationId}");
-                                if (lokationer.TryGetValue(lokationId, out var lok))
-                                {
-                                    lokationValue = lok;
-                                    Console.WriteLine($"Found Lokation: {lokationValue}");
-                                }
-                                else
-                                {
-                                    Console.WriteLine($"Lokation with Id {lokationId} not found");
-                                }
+                                lokationValue = lok;
+                                Console.WriteLine($"Found Lokation: {lokationValue}");
                             }
                             else
                             {
-                                Console.WriteLine("Lokation is null or empty");
+                                Console.WriteLine($"Lokation with Id {lokationId} not found");
                             }
                         }
                         catch (Exception ex)
@@ -125,23 +100,16 @@ namespace Backend.Controllers
 
                         try
                         {
-                            if (!string.IsNullOrEmpty(b.Enhed))
+                            long enhedId = b.Enhed;
+                            Console.WriteLine($"Looking up Enhed with Id: {enhedId}");
+                            if (enheder.TryGetValue(enhedId, out var enh))
                             {
-                                long enhedId = long.Parse(b.Enhed);
-                                Console.WriteLine($"Looking up Enhed with Id: {enhedId}");
-                                if (enheder.TryGetValue(enhedId, out var enh))
-                                {
-                                    enhedValue = enh;
-                                    Console.WriteLine($"Found Enhed: {enhedValue}");
-                                }
-                                else
-                                {
-                                    Console.WriteLine($"Enhed with Id {enhedId} not found");
-                                }
+                                enhedValue = enh;
+                                Console.WriteLine($"Found Enhed: {enhedValue}");
                             }
                             else
                             {
-                                Console.WriteLine("Enhed is null or empty");
+                                Console.WriteLine($"Enhed with Id {enhedId} not found");
                             }
                         }
                         catch (Exception ex)
@@ -156,6 +124,7 @@ namespace Backend.Controllers
                             Navn = b.Navn,
                             Beskrivelse = b.Beskrivelse,
                             Mængde = b.Mængde,
+                            Minimum = b.Minimum,
                             Kategori = kategoriValue,
                             Lokation = lokationValue,
                             Enhed = enhedValue

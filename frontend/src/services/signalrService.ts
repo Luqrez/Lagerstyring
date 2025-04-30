@@ -2,7 +2,7 @@
 import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
 
 let connection: HubConnection | null = null;
-let listeners: { [key: string]: Function[] } = {};
+const listeners: { [key: string]: Function[] } = {};
 
 export const getConnection = () => {
     if (!connection) {

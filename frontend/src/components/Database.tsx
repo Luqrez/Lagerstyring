@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "../components/Button";
 import Loading from "../components/Loading";
-import {  addListener, removeListener } from "../services/signalrService";
+import { getConnection, addListener, removeListener } from "../services/signalrService";
 import "../styles/Database.css";
 
 
@@ -23,12 +23,19 @@ interface DatabaseProps {
     setisOpen: (isOpen: boolean) => void;
 }
 
-function mapRow(row: any): Beholdning {
-    console.log('Raw row properties:', {
-        id: row.id,
-        minimum: row.minimum,
-        min_mængde: row.min_mængde // Check if this exists
-    });
+interface RowData {
+    id: number;
+    oprettet: string;
+    navn: string;
+    beskrivelse: string;
+    mængde: number;
+    min_mængde: number;
+    kategori: string;
+    lokation: string;
+    enhed: string;
+}
+
+function mapRow(row: RowData): Beholdning {
     return {
         Id: row.id,
         Oprettet: row.oprettet,
@@ -60,35 +67,14 @@ function Database({setisOpen}: DatabaseProps) {
 
     useEffect(() => {
         getBeholdning();
-        const connection = new HubConnectionBuilder()
-            .withUrl("http://localhost:5212/realtime/beholdning")
-            .withAutomaticReconnect([0, 2000, 5000, 10000,]) // Retry pattern
-            .build();
 
-        async function startConnection() {
-            try {
-                await connection.start();
-                console.log("SignalR connected successfully");
-            } catch (err) {
-                console.error("SignalR Connection Error:", err);
-                // Retry after 5 seconds
-                setTimeout(startConnection, 5000);
-            }
-        }
+        // Use the signalrService to get a connection
+        getConnection();
 
-        connection.onreconnecting((error) => {
-            console.log("Attempting to reconnect:", error);
-        });
-
-        connection.onreconnected((connectionId) => {
-            console.log("Reconnected with ID:", connectionId);
-            // Optionally refresh data after reconnection
-            getBeholdning();
-        });
-
-        connection.on("ReceiveUpdate", (data: any) => {
+        // Handle realtime updates
+        const handleRealtimeUpdate = (data: any) => {
             console.log("Realtime update received:", data);
-          
+
             const { eventType, new: newRow, old: oldRow } = data;
             if (eventType === "INSERT" && newRow) {
                 setBeholdning(prev => [...prev, mapRow(newRow)]);
@@ -99,17 +85,14 @@ function Database({setisOpen}: DatabaseProps) {
             } else if (eventType === "DELETE" && oldRow) {
                 setBeholdning(prev => prev.filter(row => row.Id !== oldRow.id));
             }
-        });
-
-        startConnection();
-
-        return () => {
-            if (connection.state === "Connected") {
-                connection.stop();
-            }
         };
+
+        // Add listener for realtime updates
+        addListener("ReceiveUpdate", handleRealtimeUpdate);
+
+        // Clean up on component unmount
         return () => {
-            connection.stop();
+            removeListener("ReceiveUpdate", handleRealtimeUpdate);
         };
     }, []);
 
@@ -129,7 +112,7 @@ function Database({setisOpen}: DatabaseProps) {
             }
 
             const data = await response.json();
-            console.log('Raw data from API:', data); // Add this line
+
 
 
 
