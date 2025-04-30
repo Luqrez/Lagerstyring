@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "../components/Button";
+import Loading from "../components/Loading";
 
 // Used for streaming from server
 import { HubConnectionBuilder } from "@microsoft/signalr";
@@ -44,6 +45,9 @@ function mapRow(row: any): Beholdning {
     };
 }
 
+interface DatabaseProps {
+    setIsOpen: (open: boolean) => void;
+}
 
 // Component
 function Database({setisOpen}: DatabaseProps) {
@@ -183,7 +187,7 @@ function Database({setisOpen}: DatabaseProps) {
             : bString.localeCompare(aString, 'da-DK');
     });
 
-    if (loading) return <div>Indlæser...</div>;
+    if (loading) return <div className='center-loader'><Loading></Loading></div>;
     if (error) return <div>Fejl: {error}</div>;
 
     return (

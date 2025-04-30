@@ -29,4 +29,3 @@ namespace Backend.Models
         public string Enhed { get; set; }              // text
     }
 };
-

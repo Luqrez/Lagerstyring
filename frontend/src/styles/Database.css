@@ -37,7 +37,6 @@ td, th {
 input {
     width: 19px;
     height: 19px;
-    margin: 0px 5px;
 }
 
 .sortable {
@@ -102,4 +101,11 @@ tbody tr {
 
 tbody tr:hover {
     background-color: rgba(0, 0, 128, 0.05); /* light navy tint */
+}
+
+.center-loader {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
