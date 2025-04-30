@@ -13,21 +13,29 @@ interface Beholdning {
     Navn: string;
     Beskrivelse: string;
     Mængde: number;
+    Minimum: number;
     Kategori: string;
     Lokation: string;
     Enhed: string;
+
 }
 interface DatabaseProps {
     setisOpen: (isOpen: boolean) => void;
 }
 
 function mapRow(row: any): Beholdning {
+    console.log('Raw row properties:', {
+        id: row.id,
+        minimum: row.minimum,
+        min_mængde: row.min_mængde // Check if this exists
+    });
     return {
         Id: row.id,
         Oprettet: row.oprettet,
         Navn: row.navn,
         Beskrivelse: row.beskrivelse,
         Mængde: row.mængde,
+        Minimum: row.min_mængde,
         Kategori: row.kategori,
         Lokation: row.lokation,
         Enhed: row.enhed,
@@ -52,13 +60,36 @@ function Database({setisOpen}: DatabaseProps) {
 
     useEffect(() => {
         getBeholdning();
+        const connection = new HubConnectionBuilder()
+            .withUrl("http://localhost:5212/realtime/beholdning")
+            .withAutomaticReconnect([0, 2000, 5000, 10000,]) // Retry pattern
+            .build();
 
-        // Opsæt SignalR-lytter via servicen
-        const handleUpdate = (data: any) => {
+        async function startConnection() {
+            try {
+                await connection.start();
+                console.log("SignalR connected successfully");
+            } catch (err) {
+                console.error("SignalR Connection Error:", err);
+                // Retry after 5 seconds
+                setTimeout(startConnection, 5000);
+            }
+        }
+
+        connection.onreconnecting((error) => {
+            console.log("Attempting to reconnect:", error);
+        });
+
+        connection.onreconnected((connectionId) => {
+            console.log("Reconnected with ID:", connectionId);
+            // Optionally refresh data after reconnection
+            getBeholdning();
+        });
+
+        connection.on("ReceiveUpdate", (data: any) => {
             console.log("Realtime update received:", data);
-
+          
             const { eventType, new: newRow, old: oldRow } = data;
-
             if (eventType === "INSERT" && newRow) {
                 setBeholdning(prev => [...prev, mapRow(newRow)]);
             } else if (eventType === "UPDATE" && newRow) {
@@ -68,14 +99,17 @@ function Database({setisOpen}: DatabaseProps) {
             } else if (eventType === "DELETE" && oldRow) {
                 setBeholdning(prev => prev.filter(row => row.Id !== oldRow.id));
             }
-        };
+        });
 
-        // Tilføj lytter
-        addListener("ReceiveUpdate", handleUpdate);
+        startConnection();
 
-        // Fjern lytter ved oprydning
         return () => {
-            removeListener("ReceiveUpdate", handleUpdate);
+            if (connection.state === "Connected") {
+                connection.stop();
+            }
+        };
+        return () => {
+            connection.stop();
         };
     }, []);
 
@@ -95,6 +129,10 @@ function Database({setisOpen}: DatabaseProps) {
             }
 
             const data = await response.json();
+            console.log('Raw data from API:', data); // Add this line
+
+
+
             setBeholdning(data || []);
         } catch (err) {
             console.error("Fejl ved hentning af beholdning:", err);
@@ -162,8 +200,10 @@ function Database({setisOpen}: DatabaseProps) {
                     <p>28 Varer</p>
                 </div>
                 <div>
+
                     <Button label="Slet" variant="delete" />
                     <Button label="+ Opret ny" variant="primary" onClick={() => setisOpen(true)}/>
+                    <Button label="Tilføj indkøb" variant="primary" />
                 </div>
             </div>
 
@@ -176,6 +216,7 @@ function Database({setisOpen}: DatabaseProps) {
                             <th onClick={() => handleSort('Navn')} className={`sortable ${sortColumn === 'Navn' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}`}>Navn</th>
                             <th onClick={() => handleSort('Beskrivelse')} className={`sortable ${sortColumn === 'Beskrivelse' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}`}>Beskrivelse</th>
                             <th onClick={() => handleSort('Mængde')} className={`sortable ${sortColumn === 'Mængde' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}`}>Mængde</th>
+                            <th onClick={() => handleSort('Minimum')}>Minimum</th>
                             <th onClick={() => handleSort('Enhed')} className={`sortable ${sortColumn === 'Enhed' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}`}>Enhed</th>
                             <th onClick={() => handleSort('Kategori')} className={`sortable ${sortColumn === 'Kategori' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}`}>Kategori</th>
                             <th onClick={() => handleSort('Lokation')} className={`sortable ${sortColumn === 'Lokation' ? (sortDirection === 'asc' ? 'sort-asc' : 'sort-desc') : ''}`}>Lokation</th>
@@ -195,6 +236,7 @@ function Database({setisOpen}: DatabaseProps) {
                                 <td id="navn">{vare.Navn}</td>
                                 <td>{vare.Beskrivelse}</td>
                                 <td>{vare.Mængde}</td>
+                                <td>{vare.Minimum}</td>
                                 <td>{vare.Enhed}</td>
                                 <td>{vare.Kategori}</td>
                                 <td>{vare.Lokation}</td>

@@ -52,6 +52,17 @@ namespace Backend.Controllers
 
                 foreach (var b in beholdning)
                 {
+
+                    Id = b.Id,
+                    Oprettet = b.Oprettet,
+                    Navn = b.Navn,
+                    Beskrivelse = b.Beskrivelse,
+                    Mængde = b.Mængde,
+                    Minimum = b.Minimum,
+                    Kategori = kategorier.TryGetValue(b.Id, out var kat) ? kat : "Ukendt",
+                    Lokation = lokationer.TryGetValue(b.Id, out var lok) ? lok : "Ukendt",
+                    Enhed = enheder.TryGetValue(b.Id, out var enh) ? enh : "Ukendt"
+                }).ToList();
                     try
                     {
                         Console.WriteLine($"Processing Beholdning with Id: {b.Id}, Navn: {b.Navn}");

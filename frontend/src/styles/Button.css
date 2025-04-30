@@ -17,7 +17,7 @@
 
 .button.primary {
     background-color: #4281cf;
-    border: solid;
+    border: 1px solid;
     border-color: #2e598d;
     color: white;
 }
@@ -34,7 +34,7 @@
 
 .button.delete {
     background-color: rgb(255, 71, 71);
-    border: solid;
+    border: 1px solid;
     border-color: rgb(189, 52, 52);
     color: white;
 }
