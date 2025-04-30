@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
 import { Button } from "../components/Button";
 import Loading from "../components/Loading";
-
-// Used for streaming from server
-import { HubConnectionBuilder } from "@microsoft/signalr";
-
-
+import {  addListener, removeListener } from "../services/signalrService";
 import "../styles/Database.css";
+
 
 // Interface der afspejler strukturen i beholdning-tabellen
 // used for type safety. Good practice
@@ -41,6 +38,8 @@ interface DatabaseProps {
     setIsOpen: (open: boolean) => void;
 }
 
+
+
 // Component
 function Database({setisOpen}: DatabaseProps) {
     const [beholdning, setBeholdning] = useState<Beholdning[]>([]);
@@ -54,36 +53,32 @@ function Database({setisOpen}: DatabaseProps) {
     useEffect(() => {
         getBeholdning();
 
-        const connection = new HubConnectionBuilder()
-        .withUrl("http://localhost:5212/realtime/beholdning")
-        .withAutomaticReconnect()
-        .build();
-
-        connection.on("ReceiveUpdate", (data: any) => {
+        // Opsæt SignalR-lytter via servicen
+        const handleUpdate = (data: any) => {
             console.log("Realtime update received:", data);
-          
+
             const { eventType, new: newRow, old: oldRow } = data;
-          
+
             if (eventType === "INSERT" && newRow) {
-              setBeholdning(prev => [...prev, mapRow(newRow)]);
+                setBeholdning(prev => [...prev, mapRow(newRow)]);
             } else if (eventType === "UPDATE" && newRow) {
-              setBeholdning(prev =>
-                prev.map(row => (row.Id === newRow.id ? mapRow(newRow) : row))
-              );
+                setBeholdning(prev =>
+                    prev.map(row => (row.Id === newRow.id ? mapRow(newRow) : row))
+                );
             } else if (eventType === "DELETE" && oldRow) {
-              setBeholdning(prev => prev.filter(row => row.Id !== oldRow.id));
+                setBeholdning(prev => prev.filter(row => row.Id !== oldRow.id));
             }
-          });
-          
+        };
 
-        connection.start()
-            .then(() => console.log("SignalR connected"))
-            .catch((err) => console.error("SignalR connection error:", err));
+        // Tilføj lytter
+        addListener("ReceiveUpdate", handleUpdate);
 
+        // Fjern lytter ved oprydning
         return () => {
-            connection.stop();
+            removeListener("ReceiveUpdate", handleUpdate);
         };
     }, []);
+
 
     async function getBeholdning() {
         try {
