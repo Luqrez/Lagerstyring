@@ -1,8 +1,7 @@
-
 .popup {
   position: fixed;
   top: 0;
-  right: -700px; /* start hidden outside of view */
+  right: -700px;
   width: 700px;
   height: 100%;
   background: #fff;
@@ -14,7 +13,7 @@
 }
 
 .popup.open {
-  right: 0; /* slide into view */
+  right: 0;
 }
 
 .popup-header {
@@ -28,7 +27,7 @@
 .popup-header h3 {
   margin: 0;
   font-size: 20px;
-  color: #444; /* Softer black */
+  color: #444;
   font-weight: 600;
 }
 
@@ -38,7 +37,7 @@
   font-size: 26px;
   font-weight: 400;
   cursor: pointer;
-  color: #666; /* softer color */
+  color: #666;
   padding: 5px 10px;
   transition: color 0.2s ease;
 }
@@ -48,7 +47,8 @@
 }
 
 .popup .input-box {
-  width: 50%;
+  width: 100%;
+  border-radius: 8px 8px 0 0;
 }
 
 .textarea-box {
@@ -74,7 +74,7 @@
 
 .popup .container {
   display: flex;
-  flex-direction:column;
+  flex-direction: column;
   border-bottom: 1px solid rgb(180, 180, 180);
   height: auto;
   padding: 10px;
@@ -86,11 +86,17 @@
   margin-bottom: 20px;
 }
 
+.suggestion-container {
+  position: relative;
+  width: 50%;
+}
+
 .row-holder {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   width: 100%;
+  margin-bottom: 30px;
 }
 
 .popup-overlay {
@@ -111,6 +117,7 @@
   display: block;
   margin: 0px;
 }
+
 h3 {
   color: black;
   font-weight: 600;
@@ -121,6 +128,38 @@ p {
   padding: 0px;
 }
 
-.row-holder {
-  margin-bottom: 30px;
+.autocomplete-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  max-height: 120px;
+  overflow-y: auto;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1001;
+  border-top: none;
+}
+
+
+.autocomplete-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.autocomplete-item:hover,
+.autocomplete-item.active {
+  background-color: #f0f0f0;
+}
+
+.suggestion-container input.input-box:focus + .autocomplete-list {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }

@@ -63,11 +63,19 @@ export function usePopupDBController(isOpen: boolean, setIsOpen: (open: boolean)
     const newErrors: { [key: string]: string } = {};
     if (!formData.navn.trim()) newErrors.navn = 'Navn er påkrævet';
     if (!formData.beskrivelse.trim()) newErrors.beskrivelse = 'Beskrivelse er påkrævet';
-    if (!formData.maengde.trim()) newErrors.maengde = 'Mængde er påkrævet';
-    if (!formData.kategori.trim()) newErrors.kategori = 'Kategori er påkrævet';
+    if (!formData.maengde.trim()) {
+      newErrors.maengde = 'Mængde er påkrævet';
+    } else if (parseFloat(formData.maengde) < 0) {
+      newErrors.maengde = 'Mængde kan ikke være negativ';
+    }
+    
+    if (!formData.minimum.trim()) {
+      newErrors.minimum = 'Minimum er påkrævet';
+    } else if (parseFloat(formData.minimum) < 0) {
+      newErrors.minimum = 'Minimum kan ikke være negativ';
+    }    if (!formData.kategori.trim()) newErrors.kategori = 'Kategori er påkrævet';
     if (!formData.lokation.trim()) newErrors.lokation = 'Lokation er påkrævet';
     if (!formData.enhed.trim()) newErrors.enhed = 'Enhed er påkrævet';
-    if (!formData.minimum.trim()) newErrors.minimum = 'Minimum er påkrævet';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
