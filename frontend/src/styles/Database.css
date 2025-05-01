@@ -5,7 +5,7 @@ html, body {
 }
 
 .container {
-    height: calc(100vh - 80px);
+    height: calc(100% - 80px);
     padding: 0 20px;
     box-sizing: border-box;
     display: flex;
