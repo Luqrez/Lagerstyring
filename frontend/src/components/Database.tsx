@@ -156,6 +156,7 @@ function Database({setisOpen}: DatabaseProps) {
         }
     };
 
+
     const sortedBeholdning = [...beholdning].sort((a, b) => {
         if (!sortColumn) return 0;
         const aValue = a[sortColumn];
@@ -186,7 +187,6 @@ function Database({setisOpen}: DatabaseProps) {
 
                     <Button label="Slet" variant="delete" />
                     <Button label="+ Opret ny" variant="primary" onClick={() => setisOpen(true)}/>
-                    <Button label="Tilføj indkøb" variant="primary" />
                 </div>
             </div>
 
