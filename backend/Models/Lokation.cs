@@ -16,4 +16,3 @@ namespace Backend.Models
         public string Navn { get; set; }
     }
 };
-

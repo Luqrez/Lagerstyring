@@ -91,7 +91,7 @@ export function usePopupDBController(isOpen: boolean, setIsOpen: (open: boolean)
         body: JSON.stringify({
           navn: formData.navn,
           beskrivelse: formData.beskrivelse,
-          maengde: parseInt(formData.maengde),
+          mængde: parseInt(formData.maengde),
           minimum: parseInt(formData.minimum),
           kategori: formData.kategori,
           lokation: formData.lokation,

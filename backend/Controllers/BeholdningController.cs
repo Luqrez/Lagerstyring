@@ -67,7 +67,7 @@ namespace Backend.Controllers
                     return Convert.ToInt32(typeof(T).GetProperty("Id")!.GetValue(createdModel));
                 }
 
-                Console.WriteLine(newBeholdning);
+                Console.WriteLine($"TESTTEINGINGGN {newBeholdning.Mængde}");
 
                 var beholdning = new Beholdning
                 {
