@@ -1,4 +1,3 @@
-// popupDBController.ts
 import { useEffect, useRef, useState } from 'react';
 
 export interface PopupDBForm {
@@ -59,22 +58,57 @@ export function usePopupDBController(isOpen: boolean, setIsOpen: (open: boolean)
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const newErrors: { [key: string]: string } = {};
     if (!formData.navn.trim()) newErrors.navn = 'Navn er påkrævet';
     if (!formData.beskrivelse.trim()) newErrors.beskrivelse = 'Beskrivelse er påkrævet';
-    if (!formData.maengde.trim()) newErrors.maengde = 'Mængde er påkrævet';
+    if (!formData.maengde.trim()) {
+      newErrors.maengde = 'Mængde er påkrævet';
+    } else if (parseFloat(formData.maengde) < 0) {
+      newErrors.maengde = 'Mængde kan ikke være negativ';
+    }
+
+    if (!formData.minimum.trim()) {
+      newErrors.minimum = 'Minimum er påkrævet';
+    } else if (parseFloat(formData.minimum) < 0) {
+      newErrors.minimum = 'Minimum kan ikke være negativ';
+    }
     if (!formData.kategori.trim()) newErrors.kategori = 'Kategori er påkrævet';
     if (!formData.lokation.trim()) newErrors.lokation = 'Lokation er påkrævet';
     if (!formData.enhed.trim()) newErrors.enhed = 'Enhed er påkrævet';
-    if (!formData.minimum.trim()) newErrors.minimum = 'Minimum er påkrævet';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
 
-    setIsOpen(false);
+    try {
+      const response = await fetch('http://localhost:5212/api/beholdning', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          navn: formData.navn,
+          beskrivelse: formData.beskrivelse,
+          maengde: parseInt(formData.maengde),
+          minimum: parseInt(formData.minimum),
+          kategori: formData.kategori,
+          lokation: formData.lokation,
+          enhed: formData.enhed,
+        }),
+      });
+
+      if (!response.ok) {
+        const message = await response.text();
+        throw new Error(message || 'Fejl ved oprettelse');
+      }
+
+      setIsOpen(false);
+    } catch (err) {
+      console.error('Fejl ved POST:', err);
+      alert('Kunne ikke indsende varen. Se konsollen for detaljer.');
+    }
   };
 
   return {

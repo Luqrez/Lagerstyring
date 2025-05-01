@@ -1,6 +1,7 @@
 using System;
 using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
+using System.Text.Json.Serialization;
 
 
 namespace Backend.Models
@@ -9,7 +10,8 @@ namespace Backend.Models
     public class Lokation : BaseModel
     {
         [PrimaryKey("id")]
-        public long Id { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public long? Id { get; set; }
         [Column("navn")]
         public string Navn { get; set; }
     }

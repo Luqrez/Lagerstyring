@@ -1,7 +1,7 @@
 using System;
 using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
-
+using System.Text.Json.Serialization;
 
 namespace Backend.Models
 {
@@ -9,7 +9,8 @@ namespace Backend.Models
     public class Enhed : BaseModel
     {
         [PrimaryKey("id")]
-        public long Id { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public long? Id { get; set; }
         [Column("value")]
         public string Value { get; set; }
     }

@@ -18,14 +18,14 @@ namespace Backend.Models
         [Column("beskrivelse")]
         public string Beskrivelse { get; set; }        // text
         [Column("mængde")]
-        public int Mængde { get; set; }         
-        [Column("min_mængde")] 
+        public int Mængde { get; set; }
+        [Column("min_mængde")]
         public int Minimum { get; set; }     // integer
-        [Column("kategori")]
-        public int Kategori { get; set; }     
-        [Column("lokation")]
-        public int Lokation { get; set; }          
-        [Column("enhed")]
-        public int Enhed { get; set; }             
+        [Column("kategori_id")]
+        public int Kategori { get; set; }
+        [Column("lokation_id")]
+        public int Lokation { get; set; }
+        [Column("enhed_id")]
+        public int Enhed { get; set; }
     }
 };

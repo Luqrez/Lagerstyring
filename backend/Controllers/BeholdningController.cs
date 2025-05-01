@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Backend.Models;
+using System.Reflection;
 
 namespace Backend.Controllers
 {
@@ -16,6 +17,98 @@ namespace Backend.Controllers
         public BeholdningController(Supabase.Client supabase)
         {
             _supabase = supabase;
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<Beholdning>> PostBeholdning([FromBody] BeholdningCreateDTO newBeholdning)
+        {
+            if (newBeholdning == null || string.IsNullOrWhiteSpace(newBeholdning.Navn))
+            {
+                return BadRequest("Navn er påkrævet.");
+            }
+
+            if (newBeholdning.Mængde < 0 || newBeholdning.Minimum < 0)
+            {
+                return BadRequest("Mængde og Minimum må ikke være negative.");
+            }
+
+            try
+            {
+                async Task<int> GetOrCreateAsync<T>(string value, string propColumnName, string sqlColumnName) where T : Supabase.Postgrest.Models.BaseModel, new()
+                {
+                    // Fetch existing by value (e.g., "Stk", "Frugt")
+                    var existing = await _supabase.From<T>()
+                        .Filter(sqlColumnName, Supabase.Postgrest.Constants.Operator.Equals, value)
+                        .Get();
+
+                    var existingModel = existing.Models.FirstOrDefault();
+                    if (existingModel != null)
+                    {
+                        return Convert.ToInt32(typeof(T).GetProperty("Id")!.GetValue(existingModel));
+                    }
+
+                    // Create a new object dynamically
+                    var newModel = new T();
+                    var prop = typeof(T).GetProperty(propColumnName);
+
+                    if (prop == null || !prop.CanWrite)
+                        throw new ArgumentException($"Property '{propColumnName}' not found or is not writable on type {typeof(T).Name}");
+
+                    Console.WriteLine(newModel);
+                    prop.SetValue(newModel, value);
+
+                    // Insert into Supabase
+                    var created = await _supabase.From<T>().Insert(newModel);
+
+                    var createdModel = created.Models.FirstOrDefault();
+                    if (createdModel == null)
+                        throw new Exception("Failed to create model");
+
+                    return Convert.ToInt32(typeof(T).GetProperty("Id")!.GetValue(createdModel));
+                }
+
+                Console.WriteLine(newBeholdning);
+
+                var beholdning = new Beholdning
+                {
+                    Navn = newBeholdning.Navn,
+                    Beskrivelse = newBeholdning.Beskrivelse,
+                    Mængde = newBeholdning.Mængde,
+                    Minimum = newBeholdning.Minimum,
+                    Oprettet = DateTime.UtcNow,
+                    Kategori = (int)await GetOrCreateAsync<Kategori>(newBeholdning.Kategori, "Navn", "navn"),
+                    Lokation = (int)await GetOrCreateAsync<Lokation>(newBeholdning.Lokation, "Navn", "navn"),
+                    Enhed = (int)await GetOrCreateAsync<Enhed>(newBeholdning.Enhed, "Value", "value"),
+                };
+
+                var result = await _supabase.From<Beholdning>().Insert(new List<Beholdning> { beholdning });
+
+                var inserted = result.Models.FirstOrDefault();
+                if (inserted == null)
+                {
+                    return StatusCode(500, "Varen kunne ikke gemmes.");
+                }
+
+                var dto = new BeholdningDTO
+                {
+                    Id = beholdning.Id,
+                    Navn = beholdning.Navn,
+                    Beskrivelse = beholdning.Beskrivelse,
+                    Mængde = beholdning.Mængde,
+                    Minimum = beholdning.Minimum,
+                    Oprettet = beholdning.Oprettet,
+                    Kategori = newBeholdning.Kategori,
+                    Lokation = newBeholdning.Lokation,
+                    Enhed = newBeholdning.Enhed
+                };
+
+                return CreatedAtAction(nameof(GetBeholdning), new { id = dto.Id }, dto);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Fejl ved oprettelse af beholdning: " + ex.ToString());
+                return StatusCode(500, "Intern serverfejl.");
+            }
         }
 
         [HttpGet]
@@ -56,66 +149,9 @@ namespace Backend.Controllers
                     {
                         Console.WriteLine($"Processing Beholdning with Id: {b.Id}, Navn: {b.Navn}");
 
-                        string kategoriValue = "Ukendt";
-                        string lokationValue = "Ukendt";
-                        string enhedValue = "Ukendt";
-
-                        try
-                        {
-                            long kategoriId = b.Kategori;
-                            Console.WriteLine($"Looking up Kategori with Id: {kategoriId}");
-                            if (kategorier.TryGetValue(kategoriId, out var kat))
-                            {
-                                kategoriValue = kat;
-                                Console.WriteLine($"Found Kategori: {kategoriValue}");
-                            }
-                            else
-                            {
-                                Console.WriteLine($"Kategori with Id {kategoriId} not found");
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Error processing Kategori: {ex.Message}");
-                        }
-
-                        try
-                        {
-                            long lokationId = b.Lokation;
-                            Console.WriteLine($"Looking up Lokation with Id: {lokationId}");
-                            if (lokationer.TryGetValue(lokationId, out var lok))
-                            {
-                                lokationValue = lok;
-                                Console.WriteLine($"Found Lokation: {lokationValue}");
-                            }
-                            else
-                            {
-                                Console.WriteLine($"Lokation with Id {lokationId} not found");
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Error processing Lokation: {ex.Message}");
-                        }
-
-                        try
-                        {
-                            long enhedId = b.Enhed;
-                            Console.WriteLine($"Looking up Enhed with Id: {enhedId}");
-                            if (enheder.TryGetValue(enhedId, out var enh))
-                            {
-                                enhedValue = enh;
-                                Console.WriteLine($"Found Enhed: {enhedValue}");
-                            }
-                            else
-                            {
-                                Console.WriteLine($"Enhed with Id {enhedId} not found");
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Error processing Enhed: {ex.Message}");
-                        }
+                        string kategoriValue = kategorier.TryGetValue(b.Kategori, out var kat) ? kat : "Ukendt";
+                        string lokationValue = lokationer.TryGetValue(b.Lokation, out var lok) ? lok : "Ukendt";
+                        string enhedValue = enheder.TryGetValue(b.Enhed, out var enh) ? enh : "Ukendt";
 
                         var dto = new BeholdningDTO
                         {
