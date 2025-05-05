@@ -5,7 +5,7 @@ import { getConnection, addListener, removeListener } from "../services/signalrS
 import "../styles/Database.css";
 import { supabase } from "../lib/supabase";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
-
+import EditPopup from "./EditPopup";
 
 // Interface der afspejler strukturen i beholdning-tabellen
 // used for type safety. Good practice
@@ -59,6 +59,8 @@ interface DatabaseProps {
 
 // Component
 function Database({setisOpen}: DatabaseProps) {
+    const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
+    const [editingItem, setEditingItem] = useState<Beholdning | null>(null);
     const [beholdning, setBeholdning] = useState<Beholdning[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -152,8 +154,8 @@ function Database({setisOpen}: DatabaseProps) {
 
     const handleDeleteSelected = () => {
         const selectedIds = Object.entries(selectedItems)
-            .filter(([_, isSelected]) => isSelected)
-            .map(([id, _]) => parseInt(id));
+            .filter(([, isSelected]) => isSelected)
+            .map(([id, ]) => parseInt(id));
 
         if (selectedIds.length === 0) {
             alert('Ingen varer valgt til sletning.');
@@ -166,8 +168,8 @@ function Database({setisOpen}: DatabaseProps) {
 
     const confirmDelete = async () => {
         const selectedIds = Object.entries(selectedItems)
-            .filter(([_, isSelected]) => isSelected)
-            .map(([id, _]) => parseInt(id));
+            .filter(([, isSelected]) => isSelected)
+            .map(([id, ]) => parseInt(id));
 
         try {
             for (const id of selectedIds) {
@@ -224,6 +226,32 @@ function Database({setisOpen}: DatabaseProps) {
             : bString.localeCompare(aString, 'da-DK');
     });
 
+    const handleEditSelected = () => {
+        const selectedIds = Object.entries(selectedItems)
+            .filter(([, isSelected]) => isSelected) // Fix ESLint warning by removing underscore
+            .map(([id]) => parseInt(id)); // Fix ESLint warning by removing underscore
+
+        if (selectedIds.length === 0) {
+            alert('Ingen varer valgt til redigering.');
+            return;
+        }
+
+        if (selectedIds.length > 1) {
+            alert('Vælg kun én vare ad gangen til redigering.');
+            return;
+        }
+
+        // Get the selected item
+        const selectedItemId = selectedIds[0];
+        const selectedItem = beholdning.find(item => item.Id === selectedItemId);
+
+        if (selectedItem) {
+            // Open the edit popup with the selected item data
+            setEditingItem(selectedItem);
+            setIsEditPopupOpen(true);
+        }
+    };
+
     if (loading) return <div className='center-loader'><Loading></Loading></div>;
     if (error) return <div>Fejl: {error}</div>;
 
@@ -235,6 +263,7 @@ function Database({setisOpen}: DatabaseProps) {
                 </div>
                 <div>
                     <Button label="Slet" variant="delete" onClick={handleDeleteSelected} />
+                    <Button label="Rediger" variant="secondary" onClick={handleEditSelected} />
                     <Button label="+ Opret ny" variant="primary" onClick={() => setisOpen(true)}/>
                 </div>
             </div>
@@ -286,6 +315,13 @@ function Database({setisOpen}: DatabaseProps) {
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={confirmDelete}
                 itemCount={Object.values(selectedItems).filter(Boolean).length}
+            />
+
+            <EditPopup
+                isOpen={isEditPopupOpen}
+                onClose={() => setIsEditPopupOpen(false)}
+                item={editingItem}
+                onItemUpdated={getBeholdning}
             />
         </div>
     );

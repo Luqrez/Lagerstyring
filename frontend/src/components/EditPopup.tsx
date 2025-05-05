@@ -1,43 +1,103 @@
-import {usePopupDBController, PopupDBForm} from '@/controllers/popupDBController';
 import '../styles/Popup.css';
 import {Button} from '@/components/Button';
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 
-interface PopupDBProps {
+interface EditPopupProps {
     isOpen: boolean;
-    setIsOpen: (open: boolean) => void;
+    onClose: () => void;
+    item: {
+        Id: number;
+        Navn: string;
+        Beskrivelse: string;
+        Mængde: number;
+        Minimum: number;
+        Kategori: string;
+        Lokation: string;
+        Enhed: string;
+    } | null;
+    onItemUpdated: () => void;
 }
 
-function PopupDB({isOpen, setIsOpen}: PopupDBProps) {
-    const {
-        formData,
-        errors,
-        textareaRef,
-        handleChange,
-        handleTextareaInput,
-        handleSubmit,
-    } = usePopupDBController(isOpen, setIsOpen);
-
+function EditPopup({isOpen, onClose, item, onItemUpdated}: EditPopupProps) {
+    const [formData, setFormData] = useState({
+        navn: '',
+        beskrivelse: '',
+        maengde: 0,
+        minimum: 0,
+        kategori: '',
+        lokation: '',
+        enhed: ''
+    });
+    const [loading, setLoading] = useState(false);
+    const [errors, setErrors] = useState<{ [key: string]: string }>({});
     const [options, setOptions] = useState<{ enheder: string[]; lokationer: string[]; kategorier: string[] }>(
         {enheder: [], lokationer: [], kategorier: []}
     );
     const [filtered, setFiltered] = useState<{ [key: string]: string[] }>({});
     const [activeIndex, setActiveIndex] = useState<{ [key: string]: number }>({});
     const [focusedField, setFocusedField] = useState<string | null>(null);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+    // Load item data when selected item changes
     useEffect(() => {
-        fetch('http://localhost:5212/api/options')
-            .then(res => res.json())
-            .then(data => setOptions({
+        if (item) {
+            setFormData({
+                navn: item.Navn,
+                beskrivelse: item.Beskrivelse,
+                maengde: item.Mængde,
+                minimum: item.Minimum,
+                kategori: item.Kategori,
+                lokation: item.Lokation,
+                enhed: item.Enhed
+            });
+        }
+    }, [item]);
+
+    // Load dropdown options when popup opens
+    useEffect(() => {
+        if (isOpen) {
+            fetchOptions();
+        }
+    }, [isOpen]);
+
+    const fetchOptions = async () => {
+        try {
+            const response = await fetch('http://localhost:5212/api/options');
+            if (!response.ok) {
+                throw new Error('Failed to fetch options');
+            }
+            const data = await response.json();
+            setOptions({
                 enheder: data.Enheder,
                 lokationer: data.Lokationer,
                 kategorier: data.Kategorier
-            }));
-    }, []);
+            });
+        } catch (error) {
+            console.error('Error fetching options:', error);
+        }
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const {name, value} = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: name === 'maengde' || name === 'minimum' ? Number(value) : value
+        }));
+    };
+
+    const handleTextareaInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
+        const target = e.target as HTMLTextAreaElement;
+        setFormData(prev => ({...prev, beskrivelse: target.value}));
+
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+        }
+    };
 
     const handleInputWithSuggestions = (e: React.ChangeEvent<HTMLInputElement>) => {
         handleChange(e);
-        setFocusedField(e.target.name); // <-- force re-showing
+        setFocusedField(e.target.name);
         const {name, value} = e.target;
         if (!value.trim()) {
             setFiltered(prev => ({...prev, [name]: []}));
@@ -58,7 +118,7 @@ function PopupDB({isOpen, setIsOpen}: PopupDBProps) {
         setActiveIndex(prev => ({...prev, [name]: -1}));
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, name: keyof PopupDBForm) => {
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, name: string) => {
         const currentList = filtered[name] || [];
         const index = activeIndex[name] ?? -1;
 
@@ -83,7 +143,45 @@ function PopupDB({isOpen, setIsOpen}: PopupDBProps) {
         }
     };
 
-    const fields: { name: keyof PopupDBForm; label: string; type: string }[] = [
+    const handleSubmit = async () => {
+        if (!item) return;
+
+        try {
+            setLoading(true);
+            setErrors(null);
+
+            const response = await fetch(`http://localhost:5212/api/beholdning/${item.Id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    navn: formData.navn,
+                    beskrivelse: formData.beskrivelse,
+                    mængde: formData.maengde,
+                    minimum: formData.minimum,
+                    kategori: formData.kategori,
+                    lokation: formData.lokation,
+                    enhed: formData.enhed
+                })
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText || 'Failed to update item');
+            }
+
+            onItemUpdated(); // Refresh data
+            onClose(); // Close popup
+        } catch (err) {
+            setErrors(`Error updating item: ${err instanceof Error ? err.message : String(err)}`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Define fields in the same order as in PopupDB
+    const fields = [
         {name: 'navn', label: 'Navn', type: 'text'},
         {name: 'maengde', label: 'Mængde', type: 'number'},
         {name: 'kategori', label: 'Kategori', type: 'text'},
@@ -94,13 +192,12 @@ function PopupDB({isOpen, setIsOpen}: PopupDBProps) {
 
     return (
         <>
-            {isOpen && <div className="popup-overlay" onClick={() => setIsOpen(false)}/>}
-
+            {isOpen && <div className="popup-overlay" onClick={onClose}></div>}
             <div className={`popup ${isOpen ? 'open' : ''}`}>
                 <div className="popup-header">
-                    <h3>Tilføj ny vare til lager</h3>
+                    <h3>Rediger vare</h3>
                     <button
-                        onClick={() => setIsOpen(false)}
+                        onClick={onClose}
                         className="close-button"
                         aria-label="Luk">
                         &times;
@@ -120,14 +217,14 @@ function PopupDB({isOpen, setIsOpen}: PopupDBProps) {
                                     type={type}
                                     name={name}
                                     placeholder={label}
-                                    value={formData[name]}
+                                    value={formData[name as keyof typeof formData]}
                                     onChange={handleInputWithSuggestions}
                                     onFocus={() => setFocusedField(name)}
                                     onBlur={() => setTimeout(() => setFocusedField(null), 100)}
                                     onKeyDown={(e) => handleKeyDown(e, name)}
                                     autoComplete="off"
                                 />
-                                {focusedField === name && formData[name].trim() && filtered[name]?.length > 0 && (
+                                {focusedField === name && formData[name as keyof typeof formData].toString().trim() && filtered[name]?.length > 0 && (
                                     <ul className="autocomplete-list">
                                         {filtered[name].map((item, index) => (
                                             <li
@@ -164,11 +261,11 @@ function PopupDB({isOpen, setIsOpen}: PopupDBProps) {
                 </div>
 
                 <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: '10px', marginRight: '10px'}}>
-                    <Button label="Submit" variant="primary" onClick={handleSubmit}/>
+                    <Button label={loading ? "Gemmer..." : "Gem ændringer"} variant="primary" onClick={handleSubmit}/>
                 </div>
             </div>
         </>
     );
 }
 
-export default PopupDB;
+export default EditPopup;
