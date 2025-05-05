@@ -3,6 +3,8 @@ import { Button } from "../components/Button";
 import Loading from "../components/Loading";
 import { getConnection, addListener, removeListener } from "../services/signalrService";
 import "../styles/Database.css";
+import { supabase } from "../lib/supabase";
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
 
 
 // Interface der afspejler strukturen i beholdning-tabellen
@@ -64,6 +66,7 @@ function Database({setisOpen}: DatabaseProps) {
     const [selectedItems, setSelectedItems] = useState<{ [key: number]: boolean }>({});
     const [sortColumn, setSortColumn] = useState<keyof Beholdning | null>(null);
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
     useEffect(() => {
         getBeholdning();
@@ -147,6 +150,54 @@ function Database({setisOpen}: DatabaseProps) {
         }));
     };
 
+    const handleDeleteSelected = () => {
+        const selectedIds = Object.entries(selectedItems)
+            .filter(([_, isSelected]) => isSelected)
+            .map(([id, _]) => parseInt(id));
+
+        if (selectedIds.length === 0) {
+            alert('Ingen varer valgt til sletning.');
+            return;
+        }
+
+        // Open the delete confirmation modal
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        const selectedIds = Object.entries(selectedItems)
+            .filter(([_, isSelected]) => isSelected)
+            .map(([id, _]) => parseInt(id));
+
+        try {
+            for (const id of selectedIds) {
+                // Use Supabase client to delete the item
+                const { error } = await supabase
+                    .from('beholdning')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) {
+                    throw new Error(`Supabase error: ${error.message}`);
+                }
+            }
+
+            // Clear selections after successful deletion
+            setSelectedItems({});
+            setSelectedAll(false);
+
+            // Close the modal
+            setIsDeleteModalOpen(false);
+
+            // Refresh the data
+            getBeholdning();
+        } catch (err) {
+            console.error("Fejl ved sletning af varer:", err);
+            alert(`Der opstod en fejl ved sletning: ${err instanceof Error ? err.message : String(err)}`);
+            setIsDeleteModalOpen(false);
+        }
+    };
+
     const handleSort = (column: keyof Beholdning) => {
         if (sortColumn === column) {
             setSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'));
@@ -181,11 +232,9 @@ function Database({setisOpen}: DatabaseProps) {
             <div className="table-header">
                 <div className='title-holder'>
                     <h1>Lagerbeholdning</h1>
-                    <p>28 Varer</p>
                 </div>
                 <div>
-
-                    <Button label="Slet" variant="delete" />
+                    <Button label="Slet" variant="delete" onClick={handleDeleteSelected} />
                     <Button label="+ Opret ny" variant="primary" onClick={() => setisOpen(true)}/>
                 </div>
             </div>
@@ -231,6 +280,13 @@ function Database({setisOpen}: DatabaseProps) {
             </div>
 
             {beholdning.length === 0 && <p>Ingen varer fundet i beholdningen.</p>}
+
+            <DeleteConfirmationModal 
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={confirmDelete}
+                itemCount={Object.values(selectedItems).filter(Boolean).length}
+            />
         </div>
     );
 }

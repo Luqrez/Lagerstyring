@@ -136,10 +136,15 @@ namespace Backend.Controllers
 
                 Console.WriteLine("Processing data");
                 var beholdning = beholdningResult.Models;
-                var kategorier = kategoriResult.Models.ToDictionary(k => k.Id, k => k.Navn);
-                var lokationer = lokationResult.Models.ToDictionary(l => l.Id, l => l.Navn);
-                var enheder = enhedResult.Models.ToDictionary(e => e.Id, e => e.Value);
-
+                var kategorier = kategoriResult.Models
+                    .Where(k => k.Id.HasValue)
+                    .ToDictionary(k => k.Id!.Value, k => k.Navn);
+                var lokationer = lokationResult.Models
+                    .Where(l => l.Id.HasValue)
+                    .ToDictionary(l => l.Id!.Value, l => l.Navn);
+                var enheder = enhedResult.Models
+                    .Where(e => e.Id.HasValue)
+                    .ToDictionary(e => e.Id!.Value, e => e.Value);
                 Console.WriteLine("Mapping Beholdning models to BeholdningDTO objects");
                 var beholdningDTOs = new List<BeholdningDTO>();
 

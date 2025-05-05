@@ -10,10 +10,9 @@ namespace Backend.Models
     public class Kategori : BaseModel
     {
         [PrimaryKey("id")]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public long? Id { get; set; }
         [Column("navn")]
-        public string Navn { get; set; }
+        public string Navn { get; set; } = string.Empty;
     }
 };
 

@@ -10,17 +10,17 @@ namespace Backend.Models
     public class Beholdning : BaseModel
     {
         [PrimaryKey("id")]
-        public long Id { get; set; }                   // bigint
+        public long Id { get; set; }
         [Column("oprettet")]
-        public DateTime Oprettet { get; set; }         // timestamp with time zone
+        public DateTime Oprettet { get; set; }
         [Column("navn")]
-        public string Navn { get; set; }               // text
+        public string Navn { get; set; } = string.Empty;
         [Column("beskrivelse")]
-        public string Beskrivelse { get; set; }        // text
+        public string Beskrivelse { get; set; } = string.Empty;
         [Column("mængde")]
         public int Mængde { get; set; }
         [Column("min_mængde")]
-        public int Minimum { get; set; }     // integer
+        public int Minimum { get; set; }
         [Column("kategori_id")]
         public int Kategori { get; set; }
         [Column("lokation_id")]

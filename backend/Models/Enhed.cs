@@ -12,7 +12,7 @@ namespace Backend.Models
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public long? Id { get; set; }
         [Column("value")]
-        public string Value { get; set; }
+        public string Value { get; set; } = string.Empty;
     }
 };
 
