@@ -1,16 +1,12 @@
-import '../../styles/Leftside.css';
-import { stockSidebarItems } from "@/navigation/stockSidebarItems";
-import { Sidebar } from "../../components/Sidebar";
+import React from 'react';
 
-function Stock() {
+function StockKategorier() {
     return (
-        <div className='stock-main'>
-            <div className="stock-leftside">
-                <Sidebar items={stockSidebarItems} />
-            </div>
+        <div>
             <h1>Kategorier</h1>
+            <p>This page is under construction.</p>
         </div>
     );
 }
 
-export default Stock;
+export default StockKategorier;

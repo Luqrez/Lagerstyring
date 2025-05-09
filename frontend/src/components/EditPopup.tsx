@@ -1,6 +1,7 @@
 import '../styles/Popup.css';
 import {Button} from '@/components/Button';
 import {useEffect, useRef, useState} from 'react';
+import { getApiUrl, API_ENDPOINTS } from "../lib/apiConfig";
 
 interface EditPopupProps {
     isOpen: boolean;
@@ -62,7 +63,7 @@ function EditPopup({isOpen, onClose, item, onItemUpdated}: EditPopupProps) {
 
     const fetchOptions = async () => {
         try {
-            const response = await fetch('http://localhost:5212/api/options');
+            const response = await fetch(getApiUrl(API_ENDPOINTS.OPTIONS));
             if (!response.ok) {
                 throw new Error('Failed to fetch options');
             }
@@ -148,9 +149,9 @@ function EditPopup({isOpen, onClose, item, onItemUpdated}: EditPopupProps) {
 
         try {
             setLoading(true);
-            setErrors(null);
+            setErrors({});
 
-            const response = await fetch(`http://localhost:5212/api/beholdning/${item.Id}`, {
+            const response = await fetch(getApiUrl(`${API_ENDPOINTS.BEHOLDNING}/${item.Id}`), {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -174,8 +175,7 @@ function EditPopup({isOpen, onClose, item, onItemUpdated}: EditPopupProps) {
             onItemUpdated(); // Refresh data
             onClose(); // Close popup
         } catch (err) {
-            setErrors(`Error updating item: ${err instanceof Error ? err.message : String(err)}`);
-        } finally {
+            setErrors({ general: `Error updating item: ${err instanceof Error ? err.message : String(err)}` });        } finally {
             setLoading(false);
         }
     };

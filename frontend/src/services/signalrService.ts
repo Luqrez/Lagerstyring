@@ -1,5 +1,6 @@
 // src/services/signalrService.ts
 import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
+import { getApiUrl, API_ENDPOINTS } from "../lib/apiConfig";
 
 let connection: HubConnection | null = null;
 const listeners: { [key: string]: Function[] } = {};
@@ -7,7 +8,7 @@ const listeners: { [key: string]: Function[] } = {};
 export const getConnection = () => {
     if (!connection) {
         connection = new HubConnectionBuilder()
-            .withUrl("http://localhost:5212/realtime/beholdning")
+            .withUrl(getApiUrl(API_ENDPOINTS.REALTIME))
             .withAutomaticReconnect()
             .build();
 

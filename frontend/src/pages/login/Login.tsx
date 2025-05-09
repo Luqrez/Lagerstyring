@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import '../../styles/Login.css';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext.tsx';
+import { useToast } from '../../components/Toast';
 
 function Login() {
     const [email, setEmail] = useState('');
@@ -10,6 +11,7 @@ function Login() {
     const [loading, setLoading] = useState(false);
     const { signIn } = useAuth();
     const navigate = useNavigate();
+    const { showToast } = useToast();
 
     useEffect(() => {
         // Allow scrolling on Login page
@@ -20,6 +22,12 @@ function Login() {
           document.body.style.overflow = '';
         };
       }, []);
+
+    useEffect(() => {
+        if (error) {
+            showToast(error, 'error');
+        }
+    }, [error, showToast]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -32,20 +40,24 @@ function Login() {
         try {
             setError(null);
             setLoading(true);
+            console.log('Login.tsx: Attempting to sign in');
 
             const { error } = await signIn(email, password);
 
             if (error) {
+                console.log('Login.tsx: Sign in error:', error);
                 setError(error.message);
                 return;
             }
 
+            console.log('Login.tsx: Sign in successful, navigating to dashboard');
             // Redirect to dashboard on successful login
             navigate('/');
         } catch (err) {
+            console.error('Login.tsx: Unexpected error during login:', err);
             setError('An unexpected error occurred');
-            console.error(err);
         } finally {
+            console.log('Login.tsx: Login process completed, setting loading to false');
             setLoading(false);
         }
     };
@@ -55,7 +67,6 @@ function Login() {
           <div className="login-holder">
             <h1>Login</h1>
 
-            {error && <p className="error-message" style={{ color: 'red' }}>{error}</p>}
 
             <form onSubmit={handleLogin}>
                 <p>Email</p>

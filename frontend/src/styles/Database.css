@@ -92,6 +92,15 @@ th.sort-desc::after {
     display: flex;
     align-items: baseline;
     flex-wrap: wrap;
+    flex-direction: column;
+}
+
+.auth-message {
+    color: #e74c3c;
+    font-size: 0.9rem;
+    margin-top: 0;
+    margin-bottom: var(--spacing-small);
+    font-weight: 500;
 }
 
 p {
@@ -100,12 +109,19 @@ p {
 }
 
 tbody tr {
-    cursor: pointer;
     transition: background-color 0.2s ease-in-out;
+}
+
+tbody tr.selectable-row {
+    cursor: pointer;
 }
 
 tbody tr:hover {
     background-color: rgba(0, 0, 128, 0.05); /* light navy tint */
+}
+
+tbody tr.selectable-row:hover {
+    background-color: rgba(0, 0, 128, 0.1); /* slightly darker navy tint for selectable rows */
 }
 
 .center-loader {

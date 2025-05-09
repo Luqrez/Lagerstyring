@@ -65,9 +65,9 @@ app.MapControllers();
 // Initialize Supabase client
 await supabase.InitializeAsync();
 
-// Enable CORS - specifically allow the frontend origin
+// Enable CORS - specifically allow the frontend origins
 app.UseCors(policy => policy
-    .WithOrigins("http://localhost:5173") // Default Vite dev server port
+    .WithOrigins("http://localhost:5173", "http://localhost:5174") // Vite dev server ports
     .AllowAnyMethod()
     .AllowAnyHeader()
     .AllowCredentials());

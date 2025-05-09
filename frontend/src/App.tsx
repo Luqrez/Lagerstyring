@@ -9,25 +9,39 @@ import StockVarer from './pages/stock/Varer.tsx';
 import StockKategorier from './pages/stock/Kategorier.tsx';
 import Signup from './pages/login/Signup.tsx';
 import { AuthProvider } from './contexts/AuthContext';
+import { ToastProvider } from './components/Toast';
+import RoleBasedRoute from './components/RoleBasedRoute';
 
 import './styles/App.css';
 
 function App() {
+  console.log('App.tsx: Rendering App component');
+
   return (
     <AuthProvider>
-      <div className="app">
-        <Header />
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/users" element={<Users />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/stock/varer" element={<StockVarer />} />
-          <Route path="/stock/kategorier" element={<StockKategorier />} />
-          <Route path="/signup" element={<Signup />} />
-        </Routes>
-      </div>
+      <ToastProvider>
+        <div className="app">
+          <Header />
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/users" element={
+              <RoleBasedRoute allowedRoles={['admin']} redirectTo="/">
+                <Users />
+              </RoleBasedRoute>
+            } />
+            <Route path="/settings" element={
+              <RoleBasedRoute allowedRoles={['admin']} redirectTo="/">
+                <Settings />
+              </RoleBasedRoute>
+            } />
+            <Route path="/stock/varer" element={<StockVarer />} />
+            <Route path="/stock/kategorier" element={<StockKategorier />} />
+            <Route path="/signup" element={<Signup />} />
+          </Routes>
+        </div>
+      </ToastProvider>
     </AuthProvider>
   );
 }

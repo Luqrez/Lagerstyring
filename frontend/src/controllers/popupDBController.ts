@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import { ToastType } from '../components/Toast';
+import { getApiUrl, API_ENDPOINTS } from "../lib/apiConfig";
 
 export interface PopupDBForm {
   navn: string;
@@ -10,7 +12,11 @@ export interface PopupDBForm {
   minimum: string;
 }
 
-export function usePopupDBController(isOpen: boolean, setIsOpen: (open: boolean) => void) {
+export function usePopupDBController(
+  isOpen: boolean, 
+  setIsOpen: (open: boolean) => void,
+  showToast?: (message: string, type: ToastType) => void
+) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const [formData, setFormData] = useState<PopupDBForm>({
@@ -83,7 +89,7 @@ export function usePopupDBController(isOpen: boolean, setIsOpen: (open: boolean)
     }
 
     try {
-      const response = await fetch('http://localhost:5212/api/beholdning', {
+      const response = await fetch(getApiUrl(API_ENDPOINTS.BEHOLDNING), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -107,7 +113,12 @@ export function usePopupDBController(isOpen: boolean, setIsOpen: (open: boolean)
       setIsOpen(false);
     } catch (err) {
       console.error('Fejl ved POST:', err);
-      alert('Kunne ikke indsende varen. Se konsollen for detaljer.');
+      if (showToast) {
+        showToast('Kunne ikke indsende varen. Se konsollen for detaljer.', 'error');
+      } else {
+        // Fallback to alert if showToast is not provided
+        alert('Kunne ikke indsende varen. Se konsollen for detaljer.');
+      }
     }
   };
 

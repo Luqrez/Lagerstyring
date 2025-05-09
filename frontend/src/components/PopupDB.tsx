@@ -2,6 +2,8 @@ import {usePopupDBController, PopupDBForm} from '@/controllers/popupDBController
 import '../styles/Popup.css';
 import {Button} from '@/components/Button';
 import {useEffect, useState} from 'react';
+import {useToast} from '@/components/Toast';
+import { getApiUrl, API_ENDPOINTS } from "../lib/apiConfig";
 
 interface PopupDBProps {
     isOpen: boolean;
@@ -9,6 +11,7 @@ interface PopupDBProps {
 }
 
 function PopupDB({isOpen, setIsOpen}: PopupDBProps) {
+    const { showToast } = useToast();
     const {
         formData,
         errors,
@@ -16,7 +19,7 @@ function PopupDB({isOpen, setIsOpen}: PopupDBProps) {
         handleChange,
         handleTextareaInput,
         handleSubmit,
-    } = usePopupDBController(isOpen, setIsOpen);
+    } = usePopupDBController(isOpen, setIsOpen, showToast);
 
     const [options, setOptions] = useState<{ enheder: string[]; lokationer: string[]; kategorier: string[] }>(
         {enheder: [], lokationer: [], kategorier: []}
@@ -26,13 +29,19 @@ function PopupDB({isOpen, setIsOpen}: PopupDBProps) {
     const [focusedField, setFocusedField] = useState<string | null>(null);
 
     useEffect(() => {
-        fetch('http://localhost:5212/api/options')
+        fetch(getApiUrl(API_ENDPOINTS.OPTIONS))
             .then(res => res.json())
             .then(data => setOptions({
                 enheder: data.Enheder,
                 lokationer: data.Lokationer,
                 kategorier: data.Kategorier
-            }));
+            }))
+            .catch(error => {
+                console.error("Error fetching options:", error);
+                if (useToast) {
+                    showToast(`Kunne ikke hente options fra backend: ${error.message}`, 'error');
+                }
+            });
     }, []);
 
     const handleInputWithSuggestions = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -163,7 +172,7 @@ function PopupDB({isOpen, setIsOpen}: PopupDBProps) {
                     </div>
                 </div>
 
-                <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: '10px', marginRight: '10px'}}>
+                <div className="popup-button-container">
                     <Button label="Submit" variant="primary" onClick={handleSubmit}/>
                 </div>
             </div>

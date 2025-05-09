@@ -4,6 +4,8 @@ import '../styles/Stock.css';
 import '../styles/print.css';
 import { Button } from "../components/Button";
 import Loading from "../components/Loading";
+import { useToast } from "../components/Toast";
+import { getApiUrl, API_ENDPOINTS } from "../lib/apiConfig";
 
 
 interface StockItem {
@@ -17,6 +19,7 @@ interface StockItem {
 }
 
 function Orders() {
+    const { showToast } = useToast();
     const [lowStockItems, setLowStockItems] = useState<StockItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -26,7 +29,7 @@ function Orders() {
             setLoading(true);
             setError(null);
 
-            const response = await fetch('http://localhost:5212/api/beholdning');
+            const response = await fetch(getApiUrl(API_ENDPOINTS.BEHOLDNING));
 
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
@@ -41,7 +44,7 @@ function Orders() {
         } catch (error) {
             console.error('Error checking stock levels:', error);
             if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-                setError("Kunne ikke forbinde til backend-serveren. Sørg for at backend-serveren kører på http://localhost:5212");
+                setError(`Kunne ikke forbinde til backend-serveren. Sørg for at backend-serveren kører på ${getApiUrl('')}`);
             } else {
                 setError(`Der opstod en fejl ved hentning af data: ${error instanceof Error ? error.message : String(error)}`);
             }
@@ -54,16 +57,28 @@ function Orders() {
         checkLowStock();
     }, []);
 
+    useEffect(() => {
+        if (error) {
+            showToast(error, 'error');
+        }
+    }, [error, showToast]);
+
     const handlePrint = () => {
         window.print();
     };
     if (loading) return <div className='center-loader'><Loading /></div>;
     if (error) return (
         <div className="container">
-            <div className="error-message">
-                <h2>Fejl ved indlæsning af indkøbsliste</h2>
-                <p>{error}</p>
-                <Button label="Prøv igen" variant="primary" onClick={checkLowStock}/>
+            <div className="table-header">
+                <div className='title-holder'>
+                    <h1>Indkøb</h1>
+                </div>
+                <div>
+                    <Button label="Prøv igen" variant="primary" onClick={checkLowStock}/>
+                </div>
+            </div>
+            <div className="table-scroll-wrapper">
+                <p>Ingen data at vise. Prøv igen senere.</p>
             </div>
         </div>
     );

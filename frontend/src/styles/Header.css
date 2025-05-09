@@ -50,6 +50,10 @@ h1 {
     color: #ffffff;
 }
 
+.nav-icon {
+    margin-right: 8px;
+}
+
 .header button, #login-button {
     background-color: transparent;
     color: white;
