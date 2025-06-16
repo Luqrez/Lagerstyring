@@ -6,6 +6,7 @@ import "../styles/Database.css";
 import { supabase } from "../lib/supabase";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import EditPopup from "./EditPopup";
+import { FaSearch } from 'react-icons/fa';
 
 // Interface der afspejler strukturen i beholdning-tabellen
 // used for type safety. Good practice
@@ -69,6 +70,8 @@ function Database({setisOpen}: DatabaseProps) {
     const [sortColumn, setSortColumn] = useState<keyof Beholdning | null>(null);
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filteredItems, setFilteredItems] = useState<Beholdning[]>([]);
 
     useEffect(() => {
         getBeholdning();
@@ -210,7 +213,25 @@ function Database({setisOpen}: DatabaseProps) {
     };
 
 
-    const sortedBeholdning = [...beholdning].sort((a, b) => {
+    // Filter items based on search query
+    useEffect(() => {
+        if (!searchQuery.trim()) {
+            setFilteredItems(beholdning);
+            return;
+        }
+
+        const query = searchQuery.toLowerCase().trim();
+        const filtered = beholdning.filter(item => 
+            item.Navn.toLowerCase().includes(query) ||
+            item.Beskrivelse.toLowerCase().includes(query) ||
+            item.Kategori.toLowerCase().includes(query) ||
+            item.Enhed.toLowerCase().includes(query) ||
+            item.Lokation.toLowerCase().includes(query)
+        );
+        setFilteredItems(filtered);
+    }, [searchQuery, beholdning]);
+
+    const sortedBeholdning = [...filteredItems].sort((a, b) => {
         if (!sortColumn) return 0;
         const aValue = a[sortColumn];
         const bValue = b[sortColumn];
@@ -268,6 +289,18 @@ function Database({setisOpen}: DatabaseProps) {
                 </div>
             </div>
 
+            <div className="search-container">
+                <div className="search-input-wrapper">
+                    <FaSearch className="search-icon" />
+                    <input
+                        type="text"
+                        placeholder="Søg efter varer..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="search-input"
+                    />
+                </div>
+            </div>
 
             <div className="table-scroll-wrapper">
                 <table className="beholdning-tabel">
@@ -308,6 +341,8 @@ function Database({setisOpen}: DatabaseProps) {
                 </table>
             </div>
 
+            {filteredItems.length === 0 && beholdning.length > 0 && searchQuery && 
+                <p>Ingen varer matcher søgningen "{searchQuery}".</p>}
             {beholdning.length === 0 && <p>Ingen varer fundet i beholdningen.</p>}
 
             <DeleteConfirmationModal 
