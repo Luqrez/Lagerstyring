@@ -19,6 +19,9 @@ namespace Backend.Controllers
             _supabase = supabase;
         }
 
+        // Tjekker at varen har et gyldigt navn og positiv beholdning, så vi undgår fejlregistrering af lagerdata.
+        // Sikrer at nye produktkategorier, enheder og lokationer automatisk oprettes, så medarbejdere hurtigt kan registrere varer uden forudgående opsætning.
+        // Opretter en ny vare i lagerstyringssystemet, så virksomheden kan følge med i beholdningen og sikre optimale lagerbeholdninger.
         [HttpPost]
         public async Task<ActionResult<Beholdning>> PostBeholdning([FromBody] BeholdningCreateDTO newBeholdning)
         {
@@ -111,6 +114,9 @@ namespace Backend.Controllers
             }
         }
 
+        // Henter en komplet oversigt over aktuelle lagerbeholdninger, så medarbejdere og ledelse kan træffe velinformerede beslutninger.
+        // Samler detaljeret information om varer, kategorier, enheder og placeringer for nem oversigt og rapportering.
+        // Mapper data til en brugervenlig form, som tydeligt viser lagersituationen på tværs af virksomheden.
         [HttpGet]
         public async Task<ActionResult<IEnumerable<BeholdningDTO>>> GetBeholdning()
         {
@@ -196,107 +202,111 @@ namespace Backend.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-            [HttpPut("{id}")]
-            public async Task<ActionResult<BeholdningDTO>> PutBeholdning(long id, [FromBody] BeholdningCreateDTO updatedBeholdning)
+
+        // Opdaterer eksisterende lagerdata, så virksomheden altid har nøjagtige oplysninger til rådighed ved ændringer i varebeholdningen.
+        // Validerer input, så fejlindtastninger undgås og lagerdata forbliver pålidelige og anvendelige for drift og planlægning.
+        // Sikrer at eventuelle nye kategorier, lokationer eller enheder også automatisk tilføjes, hvilket reducerer administrativt arbejde.
+        [HttpPut("{id}")]
+        public async Task<ActionResult<BeholdningDTO>> PutBeholdning(long id, [FromBody] BeholdningCreateDTO updatedBeholdning)
+        {
+            if (updatedBeholdning == null || string.IsNullOrWhiteSpace(updatedBeholdning.Navn))
             {
-                if (updatedBeholdning == null || string.IsNullOrWhiteSpace(updatedBeholdning.Navn))
+                return BadRequest("Navn er påkrævet.");
+            }
+
+            if (updatedBeholdning.Mængde < 0 || updatedBeholdning.Minimum < 0)
+            {
+                return BadRequest("Mængde og Minimum må ikke være negative.");
+            }
+
+            try
+            {
+                // Check if the item exists
+                var existingResult = await _supabase.From<Beholdning>()
+                    .Filter("id", Supabase.Postgrest.Constants.Operator.Equals, id)
+                    .Get();
+
+                var existing = existingResult.Models.FirstOrDefault();
+                if (existing == null)
                 {
-                    return BadRequest("Navn er påkrævet.");
+                    return NotFound($"Vare med ID {id} findes ikke.");
                 }
 
-                if (updatedBeholdning.Mængde < 0 || updatedBeholdning.Minimum < 0)
+                // Helper function to get or create related entities
+                async Task<int> GetOrCreateAsync<T>(string value, string propColumnName, string sqlColumnName) where T : Supabase.Postgrest.Models.BaseModel, new()
                 {
-                    return BadRequest("Mængde og Minimum må ikke være negative.");
-                }
-
-                try
-                {
-                    // Check if the item exists
-                    var existingResult = await _supabase.From<Beholdning>()
-                        .Filter("id", Supabase.Postgrest.Constants.Operator.Equals, id)
+                    var existing = await _supabase.From<T>()
+                        .Filter(sqlColumnName, Supabase.Postgrest.Constants.Operator.Equals, value)
                         .Get();
 
-                    var existing = existingResult.Models.FirstOrDefault();
-                    if (existing == null)
+                    var existingModel = existing.Models.FirstOrDefault();
+                    if (existingModel != null)
                     {
-                        return NotFound($"Vare med ID {id} findes ikke.");
+                        return Convert.ToInt32(typeof(T).GetProperty("Id")!.GetValue(existingModel));
                     }
 
-                    // Helper function to get or create related entities
-                    async Task<int> GetOrCreateAsync<T>(string value, string propColumnName, string sqlColumnName) where T : Supabase.Postgrest.Models.BaseModel, new()
-                    {
-                        var existing = await _supabase.From<T>()
-                            .Filter(sqlColumnName, Supabase.Postgrest.Constants.Operator.Equals, value)
-                            .Get();
+                    var newModel = new T();
+                    var prop = typeof(T).GetProperty(propColumnName);
 
-                        var existingModel = existing.Models.FirstOrDefault();
-                        if (existingModel != null)
-                        {
-                            return Convert.ToInt32(typeof(T).GetProperty("Id")!.GetValue(existingModel));
-                        }
+                    if (prop == null || !prop.CanWrite)
+                        throw new ArgumentException($"Property '{propColumnName}' not found or is not writable on type {typeof(T).Name}");
 
-                        var newModel = new T();
-                        var prop = typeof(T).GetProperty(propColumnName);
+                    prop.SetValue(newModel, value);
+                    var created = await _supabase.From<T>().Insert(newModel);
 
-                        if (prop == null || !prop.CanWrite)
-                            throw new ArgumentException($"Property '{propColumnName}' not found or is not writable on type {typeof(T).Name}");
+                    var createdModel = created.Models.FirstOrDefault();
+                    if (createdModel == null)
+                        throw new Exception("Failed to create model");
 
-                        prop.SetValue(newModel, value);
-                        var created = await _supabase.From<T>().Insert(newModel);
-
-                        var createdModel = created.Models.FirstOrDefault();
-                        if (createdModel == null)
-                            throw new Exception("Failed to create model");
-
-                        return Convert.ToInt32(typeof(T).GetProperty("Id")!.GetValue(createdModel));
-                    }
-
-                    // Update related entities
-                    int kategoriId = await GetOrCreateAsync<Kategori>(updatedBeholdning.Kategori, "Navn", "navn");
-                    int lokationId = await GetOrCreateAsync<Lokation>(updatedBeholdning.Lokation, "Navn", "navn");
-                    int enhedId = await GetOrCreateAsync<Enhed>(updatedBeholdning.Enhed, "Value", "value");
-
-                    // Update the beholdning
-                    existing.Navn = updatedBeholdning.Navn;
-                    existing.Beskrivelse = updatedBeholdning.Beskrivelse;
-                    existing.Mængde = updatedBeholdning.Mængde;
-                    existing.Minimum = updatedBeholdning.Minimum;
-                    existing.Kategori = kategoriId;
-                    existing.Lokation = lokationId;
-                    existing.Enhed = enhedId;
-
-                    // Save changes
-                    var result = await _supabase.From<Beholdning>()
-                        .Filter("id", Supabase.Postgrest.Constants.Operator.Equals, id)
-                        .Update(existing);
-
-                    var updated = result.Models.FirstOrDefault();
-                    if (updated == null)
-                    {
-                        return StatusCode(500, "Varen kunne ikke opdateres.");
-                    }
-
-                    // Map to DTO for response
-                    var dto = new BeholdningDTO
-                    {
-                        Id = updated.Id,
-                        Navn = updated.Navn,
-                        Beskrivelse = updated.Beskrivelse,
-                        Mængde = updated.Mængde,
-                        Minimum = updated.Minimum,
-                        Oprettet = updated.Oprettet,
-                        Kategori = updatedBeholdning.Kategori,
-                        Lokation = updatedBeholdning.Lokation,
-                        Enhed = updatedBeholdning.Enhed
-                    };
-
-                    return Ok(dto);
+                    return Convert.ToInt32(typeof(T).GetProperty("Id")!.GetValue(createdModel));
                 }
-                catch (Exception ex)
+
+                // Update related entities
+                int kategoriId = await GetOrCreateAsync<Kategori>(updatedBeholdning.Kategori, "Navn", "navn");
+                int lokationId = await GetOrCreateAsync<Lokation>(updatedBeholdning.Lokation, "Navn", "navn");
+                int enhedId = await GetOrCreateAsync<Enhed>(updatedBeholdning.Enhed, "Value", "value");
+
+                // Update the beholdning
+                existing.Navn = updatedBeholdning.Navn;
+                existing.Beskrivelse = updatedBeholdning.Beskrivelse;
+                existing.Mængde = updatedBeholdning.Mængde;
+                existing.Minimum = updatedBeholdning.Minimum;
+                existing.Kategori = kategoriId;
+                existing.Lokation = lokationId;
+                existing.Enhed = enhedId;
+
+                // Save changes
+                var result = await _supabase.From<Beholdning>()
+                    .Filter("id", Supabase.Postgrest.Constants.Operator.Equals, id)
+                    .Update(existing);
+
+                var updated = result.Models.FirstOrDefault();
+                if (updated == null)
                 {
-                    Console.WriteLine("Fejl ved opdatering af beholdning: " + ex.ToString());
-                    return StatusCode(500, "Intern serverfejl.");
+                    return StatusCode(500, "Varen kunne ikke opdateres.");
                 }
+
+                // Map to DTO for response
+                var dto = new BeholdningDTO
+                {
+                    Id = updated.Id,
+                    Navn = updated.Navn,
+                    Beskrivelse = updated.Beskrivelse,
+                    Mængde = updated.Mængde,
+                    Minimum = updated.Minimum,
+                    Oprettet = updated.Oprettet,
+                    Kategori = updatedBeholdning.Kategori,
+                    Lokation = updatedBeholdning.Lokation,
+                    Enhed = updatedBeholdning.Enhed
+                };
+
+                return Ok(dto);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Fejl ved opdatering af beholdning: " + ex.ToString());
+                return StatusCode(500, "Intern serverfejl.");
             }
         }
+    }
 }

@@ -19,6 +19,9 @@ namespace Backend.Controllers
             _supabase = supabase;
         }
 
+        // Modtager realtidsopdateringer fra bagvedliggende mikrotjenester, så alle medarbejdere øjeblikkeligt kan se opdaterede lagerdata.
+        // Beriger data med forståelige navne og placeringer, så medarbejdere får klar og overskuelig information uden behov for teknisk indsigt.
+        // Sender straks lageropdateringer videre til alle forbundne klienter, hvilket muliggør hurtige og præcise beslutninger på tværs af organisationen.
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] JsonElement payload)
         {

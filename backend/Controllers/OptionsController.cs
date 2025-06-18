@@ -14,7 +14,8 @@ namespace Backend.Controllers
             _supabase = supabase;
         }
 
-
+        // Leverer aktuelle valgmuligheder for kategorier, lokationer og enheder, så medarbejderne hurtigt kan vælge blandt eksisterende muligheder ved registrering af nye varer.
+        // Sikrer at dropdowns i brugerfladen altid er opdaterede med gyldige valgmuligheder, hvilket letter brugervenlighed og minimerer fejlmuligheder.
         [HttpGet]
         public async Task<ActionResult<OptionsDTO>> GetOptions()
         {
