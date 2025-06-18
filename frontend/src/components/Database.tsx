@@ -29,7 +29,7 @@ interface Beholdning {
 
 }
 interface DatabaseProps {
-    setisOpen: (isOpen: boolean) => void;
+    setIsOpen: (isOpen: boolean) => void;
 }
 
 interface RowData {
@@ -66,7 +66,7 @@ interface DatabaseProps {
 // - Sikrer at alle brugere ser samme lagerdata
 // - Muliggør effektiv koordinering mellem lagerpersonale
 // - Reducerer risiko for dobbeltbookinger og fejlbestillinger
-function Database({setisOpen}: DatabaseProps) {
+function Database({setIsOpen}: DatabaseProps) {
     const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<Beholdning | null>(null);
     const [beholdning, setBeholdning] = useState<Beholdning[]>([]);
@@ -315,7 +315,7 @@ function Database({setisOpen}: DatabaseProps) {
                 <div>
                     <Button label="Slet" variant="delete" onClick={handleDeleteSelected} />
                     <Button label="Rediger" variant="secondary" onClick={handleEditSelected} />
-                    <Button label="+ Opret ny" variant="primary" onClick={() => setisOpen(true)}/>
+                    <Button label="+ Opret ny" variant="primary" onClick={() => setIsOpen(true)}/>
                 </div>
             </div>
 

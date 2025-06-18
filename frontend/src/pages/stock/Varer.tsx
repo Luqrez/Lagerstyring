@@ -16,7 +16,7 @@ function Stock() {
                 <Sidebar items={stockSidebarItems} />
                 <PopupDB isOpen={isOpen} setIsOpen={setIsOpen}/>
             </div>
-            <Database setisOpen = {setIsOpen}/>
+            <Database setIsOpen = {setIsOpen}/>
         </div>
     );
 }

@@ -3,14 +3,12 @@ import '../styles/Header.css';
 import { useAuth } from '../contexts/AuthContext';
 import { useState } from 'react';
 
-// Hovednavigation med brugerstyring der sikrer:
-// - Kontrolleret adgang til systemets funktioner
-// - Nem navigation på tværs af enheder (desktop/mobil)
 function Header() {
     const { user, signOut } = useAuth();
     const navigate = useNavigate();
     const [menuOpen, setMenuOpen] = useState(false);
 
+    // Sikrer korrekt afslutning af brugersession og redirect til login
     const handleLogout = async () => {
         await signOut();
         navigate('/login');
@@ -25,8 +23,8 @@ function Header() {
             <NavLink to="/" className="header-title no-active">
                 <h1>Inventra</h1>
             </NavLink>
-            <div className="divider" />
 
+            <div className="divider" />
             <button className="mobile-menu-toggle" onClick={toggleMenu}>
                 <i className="fa-solid fa-bars"></i>
             </button>
@@ -38,12 +36,41 @@ function Header() {
                         Dashboard
                     </NavLink>
 
+                    <NavLink to="/stock/varer" onClick={() => setMenuOpen(false)}>
+                        <i className="fa-solid fa-boxes-stacked" style={{ marginRight: '8px' }}></i>
+                        Lager
+                    </NavLink>
+
+                    <NavLink to="/orders" onClick={() => setMenuOpen(false)}>
+                        <i className="fa-solid fa-truck-fast" style={{ marginRight: '8px' }}></i>
+                        Indkøb
+                    </NavLink>
+
+                    <NavLink to="/users" onClick={() => setMenuOpen(false)}>
+                        <i className="fa-solid fa-users" style={{ marginRight: '8px' }}></i>
+                        Brugere
+                    </NavLink>
+
+                    <NavLink to="/settings" onClick={() => setMenuOpen(false)}>
+                        <i className="fa-solid fa-gear" style={{ marginRight: '8px' }}></i>
+                        Indstillinger
+                    </NavLink>
+
                     {user ? (
-                        <button id="logout-button" className="no-active" onClick={() => { handleLogout(); setMenuOpen(false); }}>
+                        // Logout knap er kritisk for at sikre, at kun autoriserede brugere har adgang til systemet
+                        <button
+                            id="logout-button"
+                            className="no-active"
+                            onClick={() => {
+                                handleLogout();
+                                setMenuOpen(false);
+                            }}
+                        >
                             <i className="fa-solid fa-right-from-bracket" style={{ marginRight: '8px' }}></i>
                             Logout
                         </button>
                     ) : (
+                        // Login-knap gør det muligt for nye brugere at tilgå forretningsfunktioner
                         <NavLink id="login-button" to="/login" onClick={() => setMenuOpen(false)}>
                             <i className="fa-solid fa-right-to-bracket" style={{ marginRight: '8px' }}></i>
                             Login
