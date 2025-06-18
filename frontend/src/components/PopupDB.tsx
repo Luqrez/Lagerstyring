@@ -3,6 +3,7 @@ import '../styles/Popup.css';
 import {Button} from '@/components/Button';
 import {useEffect, useState} from 'react';
 
+// Dialog for warehouse personnel to register new inventory items with standardized data entry
 interface PopupDBProps {
     isOpen: boolean;
     setIsOpen: (open: boolean) => void;
@@ -18,13 +19,17 @@ function PopupDB({isOpen, setIsOpen}: PopupDBProps) {
         handleSubmit,
     } = usePopupDBController(isOpen, setIsOpen);
 
+     // Maintains master data lists for warehouse organization and inventory categorization
     const [options, setOptions] = useState<{ enheder: string[]; lokationer: string[]; kategorier: string[] }>(
         {enheder: [], lokationer: [], kategorier: []}
     );
+
+    // Smart suggestion system to prevent inventory misclassification and location errors
     const [filtered, setFiltered] = useState<{ [key: string]: string[] }>({});
     const [activeIndex, setActiveIndex] = useState<{ [key: string]: number }>({});
     const [focusedField, setFocusedField] = useState<string | null>(null);
 
+    // Loads approved warehouse storage locations, measurement units, and product categories
     useEffect(() => {
         fetch('http://localhost:5212/api/options')
             .then(res => res.json())
@@ -35,6 +40,7 @@ function PopupDB({isOpen, setIsOpen}: PopupDBProps) {
             }));
     }, []);
 
+    // Assists warehouse staff with accurate data entry through real-time suggestions
     const handleInputWithSuggestions = (e: React.ChangeEvent<HTMLInputElement>) => {
         handleChange(e);
         setFocusedField(e.target.name); // <-- force re-showing
@@ -57,7 +63,7 @@ function PopupDB({isOpen, setIsOpen}: PopupDBProps) {
         setFiltered(prev => ({...prev, [name]: suggestions}));
         setActiveIndex(prev => ({...prev, [name]: -1}));
     };
-
+    // Keyboard navigation for rapid inventory processing during busy periods
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, name: keyof PopupDBForm) => {
         const currentList = filtered[name] || [];
         const index = activeIndex[name] ?? -1;
@@ -83,6 +89,7 @@ function PopupDB({isOpen, setIsOpen}: PopupDBProps) {
         }
     };
 
+    // Required inventory information fields for stock management and tracking
     const fields: { name: keyof PopupDBForm; label: string; type: string }[] = [
         {name: 'navn', label: 'Navn', type: 'text'},
         {name: 'maengde', label: 'Mængde', type: 'number'},

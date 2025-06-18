@@ -10,9 +10,11 @@ export interface PopupDBForm {
   minimum: string;
 }
 
+// Hook, der styrer oprettelse af nye varer via en popup-form, så medarbejderne hurtigt og fejlfrit kan indtaste lageroplysninger.
 export function usePopupDBController(isOpen: boolean, setIsOpen: (open: boolean) => void) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // Initialiserer formularens datafelter, så hver ny oprettelse sker med friske værdier uden risiko for fejl fra tidligere inputs.
   const [formData, setFormData] = useState<PopupDBForm>({
     navn: '',
     beskrivelse: '',
@@ -23,8 +25,10 @@ export function usePopupDBController(isOpen: boolean, setIsOpen: (open: boolean)
     minimum: '',
   });
 
+  // Holder styr på eventuelle fejlbeskeder, så brugerne nemt kan se, hvad der mangler eller skal rettes.
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
+  // Sørger for at nulstille formularen hver gang popup-vinduet åbnes, så brugerne altid har en ren formular at arbejde med.
   useEffect(() => {
     if (isOpen) {
       setFormData({
@@ -43,12 +47,14 @@ export function usePopupDBController(isOpen: boolean, setIsOpen: (open: boolean)
     }
   }, [isOpen]);
 
+  // Opdaterer felter løbende ved brugerindtastning, så brugerne oplever en responsiv formular uden forsinkelser.
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
+  // Tilpasser tekstfelternes størrelse automatisk for bedre brugeroplevelse ved lange beskrivelser.
   const handleTextareaInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     handleChange(e);
     const textarea = textareaRef.current;
@@ -58,6 +64,7 @@ export function usePopupDBController(isOpen: boolean, setIsOpen: (open: boolean)
     }
   };
 
+  // Validerer data før indsendelse, så virksomheden undgår fejlbehæftede eller ufuldstændige lagerregistreringer.
   const handleSubmit = async () => {
     const newErrors: { [key: string]: string } = {};
     if (!formData.navn.trim()) newErrors.navn = 'Navn er påkrævet';
@@ -82,6 +89,7 @@ export function usePopupDBController(isOpen: boolean, setIsOpen: (open: boolean)
       return;
     }
 
+    // Sender de validerede data til backend-systemet, så virksomheden straks får adgang til opdateret lagerinformation.
     try {
       const response = await fetch('http://localhost:5212/api/beholdning', {
         method: 'POST',

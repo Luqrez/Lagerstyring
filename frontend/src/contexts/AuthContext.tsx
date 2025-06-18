@@ -18,20 +18,21 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// AuthProvider sikrer, at kun autoriserede brugere har adgang til virksomhedens lagerstyringssystem og beskytter dermed følsomme data mod uautoriseret adgang.
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
+    // Henter initial session og brugeroplysninger ved opstart, hvilket giver brugerne en gnidningsfri login-oplevelse uden gentagne login-forespørgsler.
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
     });
 
-    // Listen for auth changes
+    // Abonnerer på ændringer i brugerens autentificeringsstatus, så systemet straks reagerer på logins og logouts, hvilket sikrer en sikker brugeroplevelse.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setSession(session);
@@ -44,12 +45,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  // Giver medarbejdere mulighed for hurtigt at logge ind med deres virksomhedsmail og password, hvilket reducerer barrierer ved daglig brug.
   const signIn = async (email: string, password: string) => {
     return supabase.auth.signInWithPassword({ email, password });
   };
 
+  // Opretter nye brugere og beskytter mod oprettelse med test- eller eksempel-mails, så systemet kun indeholder gyldige virksomhedskonti og forhindrer misbrug.
   const signUp = async (email: string, password: string) => {
-    // Basic email validation to prevent common test emails
     if (email.endsWith('@test.com') || email.endsWith('@example.com')) {
       return {
         error: new Error('Please use a valid email address. Test emails are not accepted.'),
@@ -57,7 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       };
     }
 
-    // Get the current origin for the redirectTo URL
+    // Sender nye brugere tilbage til login-siden efter bekræftelse, så nye medarbejdere nemt kan starte med at bruge systemet uden forvirring.
     const redirectTo = window.location.origin + '/login';
     return supabase.auth.signUp({ 
       email, 
@@ -68,6 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  // Logger brugeren sikkert ud af systemet, så virksomhedens data ikke eksponeres ved afslutning af brugersessionen.
   const signOut = async () => {
     await supabase.auth.signOut();
   };
@@ -87,6 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// Hook der gør det let for udviklere at tilgå brugerens autentificeringsstatus og funktioner, hvilket forenkler integration af autorisation på tværs af systemet.
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {

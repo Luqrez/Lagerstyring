@@ -1,9 +1,13 @@
 import "../styles/Button.css";
 
+// Standard knap der bruges i hele systemet
+// Primary: Bruges til primære handlinger som "Gem", "Opret ny"
+// Secondary: Bruges til sekundære handlinger som "Annuller", "Tilbage"
+// Delete: Bruges kun til permanente sletninger der kræver brugerbekræftelse
 interface ButtonProps {
     label: string;
     onClick?: () => void;
-    variant?: 'primary' | 'secondary' | 'delete'; // support for visual styles
+    variant?: 'primary' | 'secondary' | 'delete';
 }
 
 export function Button({ label, onClick, variant = 'primary' }: ButtonProps) {
@@ -13,5 +17,3 @@ export function Button({ label, onClick, variant = 'primary' }: ButtonProps) {
         </button>
     );
 }
-
-
