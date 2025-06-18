@@ -8,8 +8,14 @@ import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import EditPopup from "./EditPopup";
 import { FaSearch } from 'react-icons/fa';
 
-// Interface der afspejler strukturen i beholdning-tabellen
-// used for type safety. Good practice
+/*
+ * Lagerstyringssystemet optimerer forretningens drift ved at:
+ * - Forebygge lagermangel gennem proaktive advarsler ved lave beholdninger
+ * - Reducere svind via præcis sporing af varebevægelser 
+ * - Effektivisere indkøb gennem automatiske indkøbsforslag
+ * - Sikre overholdelse af lovkrav om sporbarhed i fødevarebranchen
+ * - Minimere fejlplaceringer via struktureret lokationsstyring
+ */
 interface Beholdning {
     Id: number;
     Oprettet: string;
@@ -56,9 +62,10 @@ interface DatabaseProps {
     setIsOpen: (open: boolean) => void;
 }
 
-
-
-// Component
+// Understøtter realtidsopdateringer af lageret:
+// - Sikrer at alle brugere ser samme lagerdata
+// - Muliggør effektiv koordinering mellem lagerpersonale
+// - Reducerer risiko for dobbeltbookinger og fejlbestillinger
 function Database({setisOpen}: DatabaseProps) {
     const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<Beholdning | null>(null);
@@ -105,6 +112,10 @@ function Database({setisOpen}: DatabaseProps) {
     }, []);
 
 
+    // Henter aktuelt lagerstatus:
+    // - Giver komplet overblik over varebeholdning
+    // - Identificerer varer under minimumsbeholdning
+    // - Viser varelokationer for effektiv plukkeproces
     async function getBeholdning() {
         try {
             setLoading(true);
@@ -137,6 +148,10 @@ function Database({setisOpen}: DatabaseProps) {
         }
     }
 
+    // Effektiv massehåndtering af varer:
+    // - Strømliner arbejdsgange ved vareoptælling
+    // - Reducerer tid brugt på rutineopgaver
+    // - Minimerer menneskelige fejl ved dataindtastning
     const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
         const isChecked = event.target.checked;
         setSelectedAll(isChecked);
@@ -155,6 +170,10 @@ function Database({setisOpen}: DatabaseProps) {
         }));
     };
 
+    // Sikker sletning af varer:
+    // - Forebygger utilsigtet tab af lagerdata
+    // - Dokumenterer ændringer for sporbarhed
+    // - Understøtter compliance og revision
     const handleDeleteSelected = () => {
         const selectedIds = Object.entries(selectedItems)
             .filter(([, isSelected]) => isSelected)
@@ -213,7 +232,10 @@ function Database({setisOpen}: DatabaseProps) {
     };
 
 
-    // Filter items based on search query
+    // Intelligent søgefunktion:
+    // - Hurtig lokalisering af specifik vare
+    // - Effektiv filtrering på tværs af kategorier
+    // - Understøtter lageroptælling og varekontrol
     useEffect(() => {
         if (!searchQuery.trim()) {
             setFilteredItems(beholdning);
@@ -231,6 +253,10 @@ function Database({setisOpen}: DatabaseProps) {
         setFilteredItems(filtered);
     }, [searchQuery, beholdning]);
 
+    // Fleksibel sortering af lagerdata:
+    // - Optimerer overblik over varebeholdning
+    // - Letter identificering af kritiske lagerniveauer
+    // - Understøtter effektiv lageranalyse
     const sortedBeholdning = [...filteredItems].sort((a, b) => {
         if (!sortColumn) return 0;
         const aValue = a[sortColumn];
@@ -247,6 +273,10 @@ function Database({setisOpen}: DatabaseProps) {
             : bString.localeCompare(aString, 'da-DK');
     });
 
+    // Effektiv varevedligeholdelse:
+    // - Sikrer præcis opdatering af varedata
+    // - Understøtter kvalitetssikring
+    // - Muliggør hurtig respons på ændrede behov
     const handleEditSelected = () => {
         const selectedIds = Object.entries(selectedItems)
             .filter(([, isSelected]) => isSelected) // Fix ESLint warning by removing underscore

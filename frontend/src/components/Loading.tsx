@@ -1,5 +1,7 @@
 import styled from 'styled-components';
 
+// Visuel feedback til brugeren under dataindlæsning
+// Reducerer brugerens oplevede ventetid og øger systemets perceived performance
 const Loader = () => {
   return (
     <StyledWrapper>
@@ -47,14 +49,13 @@ const StyledWrapper = styled.div`
     0% {
       height: 10px;
     }
-
     50% {
       height: 50px;
     }
-
     100% {
       height: 10px;
     }
-  }`;
+  }
+`;
 
 export default Loader;

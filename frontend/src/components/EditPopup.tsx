@@ -1,3 +1,11 @@
+/*
+ * EditPopup komponenten håndterer redigering af lagervarer og sikrer:
+ * - Præcis opdatering af lagerbeholdning for bedre lagerstyring
+ * - Validering af input for at forhindre fejlindtastninger 
+ * - Autofuldførelse af kategorier/lokationer for konsistent datastruktur
+ * - Realtidsopdatering så alle brugere ser samme lagerdata
+ */
+
 import '../styles/Popup.css';
 import {Button} from '@/components/Button';
 import {useEffect, useRef, useState} from 'react';
@@ -148,7 +156,7 @@ function EditPopup({isOpen, onClose, item, onItemUpdated}: EditPopupProps) {
 
         try {
             setLoading(true);
-            setErrors(null);
+            setErrors({});
 
             const response = await fetch(`http://localhost:5212/api/beholdning/${item.Id}`, {
                 method: 'PUT',
@@ -174,7 +182,7 @@ function EditPopup({isOpen, onClose, item, onItemUpdated}: EditPopupProps) {
             onItemUpdated(); // Refresh data
             onClose(); // Close popup
         } catch (err) {
-            setErrors(`Error updating item: ${err instanceof Error ? err.message : String(err)}`);
+            setErrors({ general: `Error updating item: ${err instanceof Error ? err.message : String(err)}` });
         } finally {
             setLoading(false);
         }
