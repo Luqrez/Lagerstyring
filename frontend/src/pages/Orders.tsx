@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import '../styles/Stock.css';
 import '../styles/print.css';
@@ -6,7 +5,7 @@ import { Button } from "../components/Button";
 import Loading from "../components/Loading";
 import { FaSearch } from 'react-icons/fa';
 
-
+// Interface for stock item structure, ensuring type safety and clarity in business data handling
 interface StockItem {
     Id: number;
     Navn: string;
@@ -18,14 +17,19 @@ interface StockItem {
 }
 
 function Orders() {
-    const [lowStockItems, setLowStockItems] = useState<StockItem[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [selectedItems, setSelectedItems] = useState<{ [key: number]: boolean }>({});
-    const [selectedAll, setSelectedAll] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [filteredItems, setFilteredItems] = useState<StockItem[]>([]);
+    // State management for inventory and UI
+    const [lowStockItems, setLowStockItems] = useState<StockItem[]>([]); // Items below minimum stock
+    const [loading, setLoading] = useState(true); // Loading state for async operations
+    const [error, setError] = useState<string | null>(null); // Error message handling
+    const [selectedItems, setSelectedItems] = useState<{ [key: number]: boolean }>({}); // Track selected items for batch actions
+    const [selectedAll, setSelectedAll] = useState(false); // Track "select all" checkbox state
+    const [searchQuery, setSearchQuery] = useState(''); // Search input value
+    const [filteredItems, setFilteredItems] = useState<StockItem[]>([]); // Filtered items based on search
 
+    /**
+     * Fetches stock data from backend and identifies items below minimum threshold.
+     * Handles loading and error states for robust user experience.
+     */
     const checkLowStock = async () => {
         try {
             setLoading(true);
@@ -39,11 +43,12 @@ function Orders() {
 
             const data = await response.json();
 
-            // Filter items where mængde is less than minimum
+            // Business logic: Only include items where current quantity is below minimum
             const itemsToOrder = data.filter((item: StockItem) => item.Mængde < item.Minimum);
             setLowStockItems(itemsToOrder);
             console.log('Items below minimum:', itemsToOrder);
         } catch (error) {
+            // Comprehensive error handling for network and application errors
             console.error('Error checking stock levels:', error);
             if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
                 setError("Kunne ikke forbinde til backend-serveren. Sørg for at backend-serveren kører på http://localhost:5212");
@@ -55,11 +60,12 @@ function Orders() {
         }
     };
 
+    // On component mount, fetch low stock items
     useEffect(() => {
         checkLowStock();
     }, []);
 
-    // Filter items based on search query
+    // Filter items in real-time based on user search input
     useEffect(() => {
         if (!searchQuery.trim()) {
             setFilteredItems(lowStockItems);
@@ -76,10 +82,12 @@ function Orders() {
         setFilteredItems(filtered);
     }, [searchQuery, lowStockItems]);
 
+    // Handles printing of the current order list for business use (e.g., procurement)
     const handlePrint = () => {
         window.print();
     };
 
+    // Handles "select all" checkbox logic for batch actions
     const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
         const isChecked = event.target.checked;
         setSelectedAll(isChecked);
@@ -91,6 +99,7 @@ function Orders() {
         setSelectedItems(newSelectedItems);
     };
 
+    // Handles selection of individual items for batch actions
     const handleSelectItem = (Id: number, checked: boolean) => {
         setSelectedItems(prev => ({
             ...prev,
@@ -98,6 +107,7 @@ function Orders() {
         }));
     };
 
+    // Removes selected items from the order list; supports business workflow for order management
     const handleClearSelected = () => {
         const selectedIds = Object.entries(selectedItems)
             .filter(([, isSelected]) => isSelected)
@@ -108,14 +118,16 @@ function Orders() {
             return;
         }
 
-        // Remove selected items from the lowStockItems list
+        // Update the order list by removing selected items
         const updatedItems = lowStockItems.filter(item => !selectedItems[item.Id]);
         setLowStockItems(updatedItems);
 
-        // Clear selections
+        // Reset selection state
         setSelectedItems({});
         setSelectedAll(false);
     };
+
+    // Conditional rendering for loading and error states
     if (loading) return <div className='center-loader'><Loading /></div>;
     if (error) return (
         <div className="container">
@@ -129,16 +141,18 @@ function Orders() {
 
     return (
         <div className="container">
-             <div className="table-header">
-                            <div className='title-holder'>
-                                <h1>Indkøb</h1>
-                            </div>
-                            <div>
-                                <Button label="Fjern valgte" variant="delete" onClick={handleClearSelected}/>
-                                <Button label="Udskriv" variant="primary" onClick={handlePrint}/>
-                            </div>
+            {/* Header and action buttons for order management */}
+            <div className="table-header">
+                <div className='title-holder'>
+                    <h1>Indkøb</h1>
+                </div>
+                <div>
+                    <Button label="Fjern valgte" variant="delete" onClick={handleClearSelected}/>
+                    <Button label="Udskriv" variant="primary" onClick={handlePrint}/>
+                </div>
             </div>
 
+            {/* Search input for filtering items in real-time */}
             <div className="search-container">
                 <div className="search-input-wrapper">
                     <FaSearch className="search-icon" />
@@ -152,11 +166,18 @@ function Orders() {
                 </div>
             </div>
 
+            {/* Table displays items below minimum stock with selection and action capabilities */}
             <div className="table-scroll-wrapper">
-                  <table className="beholdning-tabel">
+                <table className="beholdning-tabel">
                     <thead>
                         <tr>
-                            <th><input type="checkbox" checked={selectedAll} onChange={handleSelectAll} /></th>
+                            <th>
+                                <input 
+                                    type="checkbox" 
+                                    checked={selectedAll} 
+                                    onChange={handleSelectAll} 
+                                />
+                            </th>
                             <th>Navn</th>
                             <th>Indkøb</th>
                             <th>Enhed</th>
@@ -164,10 +185,12 @@ function Orders() {
                             <th>Kategori</th>
                         </tr>
                     </thead>
-
                     <tbody>
-                      {filteredItems.map((item) => (
-                            <tr key={item.Id} onClick={() => handleSelectItem(item.Id, !(selectedItems[item.Id] || false))}>
+                        {filteredItems.map((item) => (
+                            <tr 
+                                key={item.Id} 
+                                onClick={() => handleSelectItem(item.Id, !(selectedItems[item.Id] || false))}
+                            >
                                 <td onClick={(e) => e.stopPropagation()}>
                                     <input
                                         type="checkbox"
@@ -183,13 +206,13 @@ function Orders() {
                             </tr>
                         ))}
                     </tbody>
-                  </table>
+                </table>
             </div>
+            {/* User feedback for empty search or empty order list */}
             {filteredItems.length === 0 && lowStockItems.length > 0 && searchQuery && 
                 <p>Ingen varer matcher søgningen "{searchQuery}".</p>}
             {lowStockItems.length === 0 && <p>Ingen varer skal bestilles.</p>}
         </div>
-
     );
 }
 
