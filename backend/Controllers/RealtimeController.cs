@@ -27,6 +27,14 @@ namespace Backend.Controllers
         {
             Console.WriteLine("Received from microservice");
 
+            var eventType = payload.GetProperty("eventType").GetString();
+
+            if (eventType != "INSERT" && eventType != "UPDATE")
+            {
+                Console.WriteLine("Ignoring eventType: " + eventType);
+                return Ok();
+            }
+
             var newData = payload.GetProperty("new");
 
             int enhedId = newData.GetProperty("enhed_id").GetInt32();
@@ -61,6 +69,7 @@ namespace Backend.Controllers
             await _hubContext.Clients.All.SendAsync("ReceiveUpdate", result);
             return Ok();
         }
+
 
     }
 }
