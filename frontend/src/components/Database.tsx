@@ -38,7 +38,7 @@ interface RowData {
     navn: string;
     beskrivelse: string;
     mængde: number;
-    min_mængde: number;
+    minimum: number;
     kategori: string;
     lokation: string;
     enhed: string;
@@ -51,7 +51,7 @@ function mapRow(row: RowData): Beholdning {
         Navn: row.navn,
         Beskrivelse: row.beskrivelse,
         Mængde: row.mængde,
-        Minimum: row.min_mængde,
+        Minimum: row.minimum,
         Kategori: row.kategori,
         Lokation: row.lokation,
         Enhed: row.enhed,
@@ -88,10 +88,13 @@ function Database({setIsOpen}: DatabaseProps) {
 
         // Handle realtime updates
         const handleRealtimeUpdate = (data: any) => {
-            console.log("Realtime update received:", data);
+            var { eventType, new: newRow, old: oldRow } = data;
+            newRow = data;
+            console.log("Realtime update received:", data, eventType, newRow);
 
-            const { eventType, new: newRow, old: oldRow } = data;
-            if (eventType === "INSERT" && newRow) {
+
+            if (eventType == "INSERT" && newRow) {
+                console.log("insert type");
                 setBeholdning(prev => [...prev, mapRow(newRow)]);
             } else if (eventType === "UPDATE" && newRow) {
                 setBeholdning(prev =>
@@ -386,7 +389,7 @@ function Database({setIsOpen}: DatabaseProps) {
                 isOpen={isEditPopupOpen}
                 onClose={() => setIsEditPopupOpen(false)}
                 item={editingItem}
-                onItemUpdated={getBeholdning}
+                onItemUpdated={() => {}}
             />
         </div>
     );

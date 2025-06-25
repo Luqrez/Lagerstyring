@@ -28,6 +28,7 @@ namespace Backend.Controllers
             Console.WriteLine("Received from microservice");
 
             var eventType = payload.GetProperty("eventType").GetString();
+            Console.WriteLine(eventType);
 
             if (eventType != "INSERT" && eventType != "UPDATE")
             {
@@ -63,7 +64,8 @@ namespace Backend.Controllers
                 oprettet = newData.GetProperty("oprettet").GetDateTime(),
                 kategori = kategori?.Navn ?? "Ukendt",
                 lokation = lokation?.Navn ?? "Ukendt",
-                enhed = enhed?.Value ?? "Ukendt"
+                enhed = enhed?.Value ?? "Ukendt",
+                eventType = eventType
             };
 
             await _hubContext.Clients.All.SendAsync("ReceiveUpdate", result);
